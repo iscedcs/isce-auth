@@ -3,14 +3,21 @@ import { AuthService } from './auth.service';
 import { GenerateProductKeyDto, SigninDto, SignupDto } from '../dtos/auth.dto';
 import { UserType } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import { ApiBadRequestResponse, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 
-
+@ApiTags('User')
 @Controller('auth')
 export class AuthController {
 
     constructor(private readonly authService: AuthService) {}
 
     @Post('/signup/:userType')
+    @ApiCreatedResponse({
+        description: 'User created successfully'
+      })
+      @ApiBadRequestResponse({
+        description: 'Invalid request',
+      })
     async signup(
         @Body() body: SignupDto, 
         @Param('userType', new ParseEnumPipe(UserType)) userType: UserType
@@ -37,6 +44,12 @@ export class AuthController {
     }
 
     @Post('/signin/:userType')
+    @ApiCreatedResponse({
+        description: 'Signin successfully',
+      })
+      @ApiBadRequestResponse({
+        description: 'Invalid request',
+      })
     signin(
         @Param('userType') userType: 'ADMIN'|'USER',
         @Body() body: SigninDto) {
@@ -45,6 +58,12 @@ export class AuthController {
     }
 
     @Post('key')
+    @ApiCreatedResponse({
+        description: 'User Product key created successfully',
+      })
+      @ApiBadRequestResponse({
+        description: 'Invalid request',
+      })
     generateProductKey(
         @Body() {email, userType}: GenerateProductKeyDto) {
         return this.authService.generateProductKey(email, userType);
