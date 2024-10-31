@@ -1,9 +1,10 @@
-import { Body, Controller, Param, ParseEnumPipe, Post, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Param, ParseEnumPipe, Post, Res, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { GenerateProductKeyDto, SigninDto, SignupDto } from '../dtos/auth.dto';
 import { UserType } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 
 @ApiTags('User')
 @Controller('auth')
@@ -52,9 +53,9 @@ export class AuthController {
       })
     signin(
         @Param('userType') userType: 'ADMIN'|'USER',
-        @Body() body: SigninDto) {
+        @Body() body: SigninDto, @Res() res) {
             const {email, password} = body
-        return this.authService.signin({email, password,userType})
+        return this.authService.signin(email, password, userType, res)
     }
 
     @Post('key')

@@ -1,9 +1,10 @@
-import { ConflictException, HttpException, Injectable } from '@nestjs/common';
+import { ConflictException, HttpException, Injectable, Res } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import *as jwt from "jsonwebtoken";
 import * as uuid from 'uuid';
-import { UserType } from '@prisma/client';
+import { User, UserType } from '@prisma/client';
+import { Response } from 'express';
 
 
 interface SignupParams {
@@ -51,11 +52,11 @@ export class AuthService {
             },
         });
 
-        return this.generateJWT(user.name, user.id);
+        return this.generateJWT(user, password);
 
     }
 
-    async signin({email, password, userType}: SigninParams) {
+    async signin(email: string, password: string, userType: string, res: Response) {
         // signin logic
         const user = await this.prismaService.user.findUnique({
             where: {
@@ -77,13 +78,20 @@ export class AuthService {
         if (!isValidPassword) {
             throw new HttpException("Invalid Credentails", 400);
         }
-        return this.generateJWT(user.name, user.id);
+
+        const token = this.generateJWT(user, password);
+        
+        return res.status(201).send({
+            success: "true",
+            message: "Successfully Signed in",
+            token,
+          });
     }
 
-    private generateJWT(name: string, id: string) {
+    private generateJWT(user: User, password: string) {
         return jwt.sign({
-            name,
-            id,
+            user,
+            password,
         },
         process.env.JSON_TOKEN_KEY,
         {
