@@ -38,6 +38,7 @@ export class AuthController {
 
             if (!isValidProductKey) {
                 throw new UnauthorizedException();
+            // eslint-disable-next-line prettier/prettier
             }
         }
 
