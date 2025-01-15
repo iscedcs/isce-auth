@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { GenerateProductKeyDto, SigninDto, SignupDto } from '../dtos/auth.dto';
 import { UserType } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
-import { ApiBadRequestResponse, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('User')
 @Controller('auth')
@@ -68,4 +68,18 @@ export class AuthController {
         @Body() {email, userType}: GenerateProductKeyDto) {
         return this.authService.generateProductKey(email, userType);
     }
+
+    @Post('request-reset-password')
+  @ApiOperation({ summary: 'Request a password reset' })
+  @ApiBody({ type: ResetPasswordDto, description: 'User email to request' })
+  async requestResetPassword(@Body() dto: RequestResetDto): Promise<{ message: string }> {
+    await this.authService.requestResetPassword(dto.email);
+    return { message: 'Reset password email sent successfully.' };
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() dto: ResetPasswordDto): Promise<{ message: string }> {
+    await this.authService.resetPassword(dto.token, dto.newPassword);
+    return { message: 'Password reset successfully.' };
+  }
 }
