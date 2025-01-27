@@ -7,7 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 // import { jwtSecret } from 'src/utils/constants';
 import { Request, Response } from 'express';
 import { MailService } from './mail.service';
-import { Role, User } from '@prisma/client';
+import { UserType, User } from '@prisma/client';
 import { BADFAMILY } from 'dns';
 // import moment from 'moment';
 // import { parse, format } from 'date-fns';
@@ -19,7 +19,6 @@ export class AuthService {
       private databaseService: DatabaseService, 
       private mailService: MailService, 
       private jwt: JwtService) {}
-
 
       // Step 2: Request Email Verification Code
   async requestVerifyEmailCode(email: string) {
@@ -101,11 +100,9 @@ export class AuthService {
     }
   }
 
-
-
     async signup(dto: RegisterDto) {
         try {
-            const { fullname, email, phone, password, confirmpassword, dob } = dto;
+            const { fullname, email, phone, password, confirmpassword, dob, address } = dto;
 
             const formattedEmail = email.toLowerCase();
 
@@ -152,9 +149,10 @@ export class AuthService {
                     fullname: fullname,
                     phone: phone,
                     email: formattedEmail,
+                    address: address,
                     dob: utcDob,
                     password: hashedPassword,
-                    role: "USER",
+                    userType: "USER",
                 }
             });
 
@@ -169,10 +167,6 @@ export class AuthService {
             throw new HttpException(error.message || 'Invalid token or request', HttpStatus.BAD_REQUEST);    
         }
     }
-    
-
-
-
 
     async signin(dto: LoginDto, req: Request, res: Response) {
 
@@ -217,7 +211,6 @@ export class AuthService {
         }
         
     }
-
 
     async signinEvents(dto: LoginDto, req: Request, res: Response) {
 

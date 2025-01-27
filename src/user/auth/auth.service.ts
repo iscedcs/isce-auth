@@ -8,23 +8,24 @@ import { Response } from 'express';
 
 
 interface SignupParams {
-    name: string;
+    fullname: string;
     email: string;
     password: string;
     address: string;
     phone: string;
+    dob: Date; // Added date of birth
 }
 
 interface SigninParams {
     email: string;
     password: string;
-    userType?: "ADMIN"|"USER"
+    userType?: "ADMIN"|"USER"|"BUSINESS_USER"
 }
 
 @Injectable()
 export class AuthService {
     constructor(private readonly prismaService: PrismaService) {}
-    async signup({email, password, name, address, phone}: SignupParams, userType: UserType) {
+async signup({email, password, fullname, address, phone, dob}: SignupParams, userType: UserType) {
         // signup logic
 
         const id = uuid.v4(); // Generate a unique ID
@@ -44,9 +45,10 @@ export class AuthService {
             data: {
                 id: id,
                 email,
-                name,
+                fullname,
                 phone,
-                address, 
+                address,
+                dob, 
                 password: hashpassword,
                 userType: userType,
             },

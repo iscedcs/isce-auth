@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Headers, HttpException, HttpStatus, Param, Patch, Post, Query, UseGuards, ValidationPipe } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateAdminUserDto, UpdateUserDto } from './dto/user.dto';
-import { Role } from '@prisma/client';
+import { UserType } from '@prisma/client';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
@@ -15,7 +15,7 @@ export class UserController {
 
     @Post('createAdmin')
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN)
+    @Roles(UserType.ADMIN)
     @ApiBearerAuth('JWT-auth') 
     @ApiOperation({ summary: 'Create a new user' })
     @ApiResponse({ status: 201, description: 'User created successfully.' })
@@ -33,7 +33,7 @@ export class UserController {
     @ApiResponse({ status: 201, description: 'User fetched successfully.' })
     @ApiResponse({ status: 400, description: 'Bad Request.' })
     @ApiQuery({
-        name: 'role',
+        name: 'userType',
         required: false,  // Making the query parameter optional
         description: 'Filter by role',
         type: String,
@@ -51,11 +51,11 @@ export class UserController {
         type: String,
       })
     getAllUsers(
-        @Query('role') role?: Role,
+        @Query('role') userType?: UserType,
         @Query('limit') limit?: number,
         @Query('offset') offset?: number,
     ) {
-        return this.userService.getAllUsers({ role, limit, offset });
+        return this.userService.getAllUsers({ userType, limit, offset });
     }
 
     @Get('one/:id')
@@ -132,11 +132,11 @@ export class UserController {
     async searchUsers(
     @Query('email') email?: string,
     @Query('fullname') fullname?: string,
-    @Query('role') role?: Role,
+    @Query('userType') userType?: UserType,
     @Query('limit') limit?: number,
     @Query('offset') offset?: number
     ) {
-    return await this.userService.searchUsers(email, fullname, role, limit, offset);
+    return await this.userService.searchUsers(email, fullname, userType, limit, offset);
     }
 
     @Get('/users/count')

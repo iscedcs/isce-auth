@@ -1,4 +1,3 @@
-
 export const GenerateRandomString = (length: number): string => {
     let result = '';
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -8,8 +7,6 @@ export const GenerateRandomString = (length: number): string => {
     }
     return result;
 };
-
-
 
 export function generateCode(): string {
     // Function to generate a random number between min (inclusive) and max (inclusive)

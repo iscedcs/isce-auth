@@ -6,7 +6,7 @@ import {
   } from '@nestjs/common';
   import { Reflector } from '@nestjs/core';
   import { ROLES_KEY } from './roles.decorator';  // Import the custom decorator
-  import { Role } from '@prisma/client';  // Adjust the path to where your Role enum is defined
+  import { UserType } from '@prisma/client';  // Adjust the path to where your Role enum is defined
   
   @Injectable()
   export class RolesGuard implements CanActivate {
@@ -17,7 +17,7 @@ import {
       console.log('Request:', request);
       console.log('User in request:', request.user);
       // Extract the roles required for the handler (route) from metadata
-      const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
+      const requiredRoles = this.reflector.getAllAndOverride<UserType[]>(ROLES_KEY, [
         context.getHandler(),
         context.getClass(),
       ]);

@@ -2,7 +2,7 @@ import { Injectable, BadRequestException, HttpException, HttpStatus, NotFoundExc
 import { CreateAdminUserDto, UpdateUserDto } from './dto/user.dto';
 import { DatabaseService } from '../database/database.service';
 import * as bcrypt from 'bcrypt';
-import { Role } from '@prisma/client';
+import { UserType } from '@prisma/client';
 import { transformToUserDto } from 'src/auth/dto/auth.dto';
 
 
@@ -11,7 +11,7 @@ export class UserService {
   constructor(private readonly databaseService: DatabaseService) {}
 
     async createAdminUser(createAdminUserDto: CreateAdminUserDto) {
-        const { email, password, fullname, phone, dob} = createAdminUserDto;
+        const { email, password, address, fullname, phone, dob} = createAdminUserDto;
 
         try {
 
@@ -51,8 +51,9 @@ export class UserService {
                 email: formattedEmail,
                 password: hashedPassword,
                 fullname,
+                address: address,
                 phone: phone,
-                role: "ADMIN",
+                userType: "ADMIN",
                 dob: utcDob
                 },
             });
@@ -69,12 +70,9 @@ export class UserService {
         }
     }
 
-
-
-
-    async getAllUsers({ role, limit = 10, offset = 0 }: { role?: Role, limit?: number, offset?: number }) {
+    async getAllUsers({ userType, limit = 10, offset = 0 }: { userType?: UserType, limit?: number, offset?: number }) {
         try {
-          const where = role ? { role } : { deletedAt: null };
+          const where = userType ? { userType } : { deletedAt: null };
     
           const users = await this.databaseService.user.findMany({
             where,
@@ -99,7 +97,6 @@ export class UserService {
         }
     }
 
-      
     async getUserById(id: string) {
         try {
             const user = await this.databaseService.user.findUnique({
@@ -121,7 +118,6 @@ export class UserService {
             throw new HttpException(error.message || 'Failed to fetch user, Internal server error', HttpStatus.INTERNAL_SERVER_ERROR); 
         }
     }
-
 
     async updateUser(id: string, updateUserDto: UpdateUserDto) {
       try {
@@ -162,7 +158,6 @@ export class UserService {
             }
           }
           
-    
           const updatedUser = await this.databaseService.user.update({
             where: { id, deletedAt: null },
             data: { fullname: fullname, phone: phone, dob: utcDob, email: formattedEmail},
@@ -180,8 +175,6 @@ export class UserService {
         throw new HttpException(error.message || 'Failed to update user, Internal server error', HttpStatus.INTERNAL_SERVER_ERROR); 
       }
     }
-
-
 
     async softDeleteUser(id: string) {
       try {
@@ -209,8 +202,6 @@ export class UserService {
       }
     }
 
-
-
     async batchSoftDeleteUsers(userIds: string[]) {
       try {
           const users = await this.databaseService.user.findMany({
@@ -237,13 +228,10 @@ export class UserService {
       }
     }
 
-
-
-
     async searchUsers(
       email?: string,
       fullname?: string,
-      role?: Role,
+      userType?: UserType,
       limit?: number,
       offset?: number
     ) {
@@ -258,8 +246,8 @@ export class UserService {
           if (fullname) {
             filters.fullname = { contains: fullname, mode: 'insensitive' };
           }
-          if (role) {
-            filters.role = role;
+          if (userType) {
+            filters.userType = userType;
           }
           const users = await this.databaseService.user.findMany({
             where: filters,
@@ -279,7 +267,6 @@ export class UserService {
       }
     }
 
-
     async getTotalUserCount() {
       try {
           const count = await this.databaseService.user.count({
@@ -295,8 +282,6 @@ export class UserService {
         throw new HttpException(error.message || 'Failed to count users, Internal server error', HttpStatus.INTERNAL_SERVER_ERROR); 
       }
     }
-
-
 
     async getActiveUsers() {
       try {

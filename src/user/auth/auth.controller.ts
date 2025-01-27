@@ -53,7 +53,7 @@ export class AuthController {
         description: 'Invalid request',
       })
     signin(
-        @Param('userType') userType: 'ADMIN'|'USER',
+        @Param('userType') userType: 'ADMIN'|'USER'|'BUSINESS_USER',
         @Body() body: SigninDto, @Res() res) {
             const {email, password} = body
         return this.authService.signin(email, password, userType, res)

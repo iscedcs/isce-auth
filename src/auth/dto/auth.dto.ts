@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose, plainToClass } from 'class-transformer';
 import { IsDate, IsEmail, IsNotEmpty, IsOptional, IsString, MinLength, ValidateNested } from 'class-validator';
 
-
 export class EmailDto {
   @ApiProperty({ description: 'User email', example: 'teddy@gmail.com' })
   @IsEmail()
@@ -16,12 +15,12 @@ export class VerifyEmailDto {
   @IsNotEmpty()
   email: string;
 
-
   @ApiProperty({ description: 'Verification code', example: '123456' })
   @IsString()
   @IsNotEmpty()
   code: string;
 }
+
 export class RegisterDto {
   @ApiProperty({ description: 'User name', example: 'Elon Musk' })
   @IsNotEmpty()
@@ -43,6 +42,11 @@ export class RegisterDto {
   @IsNotEmpty()
   dob: Date;
 
+  @ApiProperty({ description: 'User address', example: '123 Main St' })
+  @IsNotEmpty()
+  @IsString()
+  address: string;
+
   @ApiProperty({ description: 'User password', example: 'password123' })
   @IsNotEmpty()
   @IsString()
@@ -56,22 +60,17 @@ export class RegisterDto {
   confirmpassword: string;
 }
 
-
-
-
 export class LoginDto {
-  
-    @ApiProperty({ description: 'User email', example: 'elonmusk@gmail.com' })
-    @IsEmail()
-    @IsNotEmpty()
-    email: string;
-  
-    @ApiProperty({ description: 'User password', example: 'password123' })
-    @IsNotEmpty()
-    @MinLength(8)
-    password: string;
-}
+  @ApiProperty({ description: 'User email', example: 'elonmusk@gmail.com' })
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
 
+  @ApiProperty({ description: 'User password', example: 'password123' })
+  @IsNotEmpty()
+  @MinLength(8)
+  password: string;
+}
 
 export class ResetPasswordDto {
   @ApiProperty({ description: 'Code to reset password', example: 'gacrow93q7r846t734o8ey817q6etgedfkdh' })
@@ -92,7 +91,6 @@ export class SendResetTokenDto {
   @IsEmail()
   email: string;
 }
-
 
 export class UserDto {
   @Expose()

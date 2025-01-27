@@ -1,7 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { UserType } from "@prisma/client";
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
-
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength, IsDate } from "class-validator";
 
 export class SignupDto {
     @ApiProperty({
@@ -9,7 +8,7 @@ export class SignupDto {
     })
     @IsString()
     @IsNotEmpty()
-    name: string;
+    fullname: string;
 
     @ApiProperty({
         description: 'User Email',
@@ -29,6 +28,13 @@ export class SignupDto {
     })
     @IsString()
     address: string;
+
+    @ApiProperty({
+        description: 'User Date of Birth',
+    })
+    @IsDate()
+    @IsNotEmpty()
+    dob: Date;
 
     @ApiProperty({
         description: 'User Password',
@@ -71,5 +77,5 @@ export class GenerateProductKeyDto {
         description: 'Type of User',
     })
     @IsEnum(UserType)
-    userType: UserType
+    userType: UserType;
 }
