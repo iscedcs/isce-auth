@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { UserType } from "@prisma/client";
 import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength, IsDate } from "class-validator";
+// import { UserType } from '../enums/user-type.enum'; // Adjust the import path as necessary
+import { UserType } from '@prisma/client';
 
 export class SignupDto {
     @ApiProperty({
