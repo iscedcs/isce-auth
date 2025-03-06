@@ -1,12 +1,16 @@
 import { Injectable, BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import * as bcrypt from 'bcrypt';
-import { CreateBusinessDto } from './dto/create-business_user.dto';
+import { CreateBusinessDto, LoginBusinessUserDto } from './dto/create-business_user.dto';
 import { UpdateBusinessUserDto } from './dto/update-business_user.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class BusinessService {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(
+    private readonly databaseService: DatabaseService,
+    private readonly jwtService: JwtService
+  ) {}
 
   async createBusiness(createBusinessDto: CreateBusinessDto) {
     const {
@@ -97,6 +101,32 @@ export class BusinessService {
     } catch (error) {
       throw new BadRequestException('Failed to update business user');
     }
+  }
+
+  async loginBusiness(loginBusinessUserDto: LoginBusinessUserDto) {
+    const { email, password } = loginBusinessUserDto;
+
+    const business = await this.databaseService.user.findUnique({
+      where: { email, userType: 'BUSINESS_USER', deletedAt: null },
+    });
+
+    if (!business) {
+      throw new NotFoundException('Business user not found');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, business.password);
+    if (!isPasswordValid) {
+      throw new BadRequestException('Invalid credentials');
+    }
+
+    const payload = { sub: business.id, email: business.email };
+    const token = this.jwtService.sign(payload);
+
+    return {
+      success: true,
+      message: 'Login successful',
+      data: { token },
+    };
   }
 
   async getAllBusinessUser() {

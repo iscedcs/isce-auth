@@ -39,5 +39,6 @@ import {
       // Allow access if the role matches
       return true;
     }
+    
   }
   

@@ -1,5 +1,5 @@
 import { IsString, IsEmail, IsEnum, IsOptional, MinLength, Matches, IsNotEmpty } from 'class-validator';
-import { IdentificationType } from '@prisma/client';
+import { IdentificationType, UserType } from '@prisma/client';
 
 export class CreateBusinessDto {
   @IsString()
@@ -44,4 +44,18 @@ export class CreateBusinessDto {
   @IsString()
   @IsNotEmpty()
   confirmPassword: string;
+
+  @IsOptional()  // Role is optional; if not provided, default to USER
+  @IsEnum(UserType)
+  role?: UserType;
+}
+
+export class LoginBusinessUserDto {
+  @IsString()
+  @IsNotEmpty()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  password: string;
 }

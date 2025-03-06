@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, UseInterceptors, Param, Put, } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam } from '@nestjs/swagger';
-import { CreateBusinessDto } from './dto/create-business_user.dto';
+import { CreateBusinessDto, LoginBusinessUserDto } from './dto/create-business_user.dto';
 import { UpdateBusinessUserDto } from './dto/update-business_user.dto';
 import { BusinessService } from './business_user.service';
 
@@ -10,7 +10,7 @@ import { BusinessService } from './business_user.service';
 export class BusinessController {
   constructor(private readonly businessService: BusinessService) {}
 
-  @Post()
+  @Post('register')
   @UseInterceptors(FileInterceptor('displayPicture'))
   @ApiOperation({ summary: 'Create a new business user' })
   @ApiResponse({ status: 201, description: 'The business user has been successfully created.' })
@@ -20,6 +20,17 @@ export class BusinessController {
     @Body() createBusinessDto: CreateBusinessDto,
   ) {
     return this.businessService.createBusiness(createBusinessDto);
+  }
+
+  @Post('login')
+  @ApiOperation({ summary: 'Login a business user' })
+  @ApiResponse({ status: 200, description: 'Login successful.' })
+  @ApiResponse({ status: 400, description: 'Invalid credentials.' })
+  @ApiBody({ type: LoginBusinessUserDto })
+  async login(
+    @Body() loginBusinessUserDto: LoginBusinessUserDto,
+  ) {
+    return this.businessService.loginBusiness(loginBusinessUserDto);
   }
 
   @Put(':id')
