@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import *as jwt from "jsonwebtoken";
 import * as uuid from 'uuid';
-import { User, UserType } from '@prisma/client';
+import { IdentificationType, User, UserType } from '@prisma/client';
 import { Response } from 'express';
 
 
@@ -51,6 +51,7 @@ async signup({email, password, fullname, address, phone, dob}: SignupParams, use
                 dob, 
                 password: hashpassword,
                 userType: userType,
+                identificationType: IdentificationType.NIN // Add appropriate value for identificationType
             },
         });
 
@@ -105,5 +106,4 @@ async signup({email, password, fullname, address, phone, dob}: SignupParams, use
         const productKey = `${email}-${userType}-${process.env.PRODUCT_KEY_SECRET}`
         return bcrypt.hash(productKey, 10);
     }
-
 }
