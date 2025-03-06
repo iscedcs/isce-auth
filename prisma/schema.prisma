@@ -16,11 +16,16 @@ datasource db {
 model User {
   id                     String          @id @default(uuid())
   fullname               String
-  email                  String          @unique
+  organizationName       String?
+  email                  String    @unique
+  displayPicture         String?
+  organizationAddress    String?
+  identificationType     IdentificationType
+  idNumber               String?    @unique
   password               String
   phone                  String
-  address                String
-  dob                    DateTime
+  address                String?
+  dob                    DateTime?
   userType               UserType            @default(USER)
   passwordReset          PasswordReset[]
   createdAt              DateTime        @default(now())
@@ -53,4 +58,11 @@ enum UserType {
   USER
   BUSINESS_USER
   ADMIN
+}
+
+enum IdentificationType {
+  CAC
+  TIN
+  BVN
+  NIN
 }

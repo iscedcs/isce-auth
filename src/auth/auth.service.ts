@@ -7,7 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 // import { jwtSecret } from 'src/utils/constants';
 import { Request, Response } from 'express';
 import { MailService } from './mail.service';
-import { UserType, User } from '@prisma/client';
+import { UserType, User, IdentificationType } from '@prisma/client';
 import { BADFAMILY } from 'dns';
 // import moment from 'moment';
 // import { parse, format } from 'date-fns';
@@ -91,7 +91,11 @@ export class AuthService {
         data: { isVerified: true }
       })
 
-      return { success: true, message: 'Email verified successfully.', data: updatedEmailRecord };
+      return { 
+        success: true, 
+        message: 'Email verified successfully.', 
+        data: updatedEmailRecord 
+      };
     } catch (error) {
       throw new HttpException(
         error.message || 'Failed to verify email.',
@@ -153,6 +157,7 @@ export class AuthService {
                     dob: utcDob,
                     password: hashedPassword,
                     userType: "USER",
+                    identificationType: IdentificationType.NIN // Replace with a valid IdentificationType value
                 }
             });
 

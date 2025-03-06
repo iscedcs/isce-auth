@@ -2,7 +2,7 @@ import { Injectable, BadRequestException, HttpException, HttpStatus, NotFoundExc
 import { CreateAdminUserDto, UpdateUserDto } from './dto/user.dto';
 import { DatabaseService } from '../database/database.service';
 import * as bcrypt from 'bcrypt';
-import { UserType } from '@prisma/client';
+import { IdentificationType, UserType } from '@prisma/client';
 import { transformToUserDto } from 'src/auth/dto/auth.dto';
 
 
@@ -54,7 +54,8 @@ export class UserService {
                 address: address,
                 phone: phone,
                 userType: "ADMIN",
-                dob: utcDob
+                dob: utcDob,
+                identificationType: IdentificationType.NIN // Replace VALID_TYPE with an actual valid type
                 },
             });
 
