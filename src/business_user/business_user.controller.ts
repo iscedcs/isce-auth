@@ -5,8 +5,8 @@ import { CreateBusinessDto, LoginBusinessUserDto } from './dto/create-business_u
 import { UpdateBusinessUserDto } from './dto/update-business_user.dto';
 import { BusinessService } from './business_user.service';
 
-@ApiTags('business')
-@Controller('business')
+@ApiTags('business-user')
+@Controller('business-user')
 export class BusinessController {
   constructor(private readonly businessService: BusinessService) {}
 
