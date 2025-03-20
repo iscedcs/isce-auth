@@ -1,23 +1,42 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
+CREATE TYPE "UserType" AS ENUM ('USER', 'BUSINESS_USER', 'ADMIN');
 
 -- CreateEnum
-CREATE TYPE "UserType" AS ENUM ('ISCE_ADMIN', 'ADMIN', 'USER');
+CREATE TYPE "IdentificationType" AS ENUM ('CAC', 'TIN', 'BVN', 'NIN');
 
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "fullname" TEXT NOT NULL,
+    "organizationName" TEXT,
     "email" TEXT NOT NULL,
-    "password" TEXT,
-    "phone" TEXT,
+    "displayPicture" TEXT,
+    "organizationAddress" TEXT,
+    "identificationType" "IdentificationType" NOT NULL,
+    "idNumber" TEXT,
+    "password" TEXT NOT NULL,
+    "phone" TEXT NOT NULL,
+    "address" TEXT,
     "dob" TIMESTAMP(3),
-    "role" "Role" NOT NULL DEFAULT 'USER',
+    "userType" "UserType" NOT NULL DEFAULT 'USER',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "EmailVerify" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "verifyCode" TEXT NOT NULL,
+    "isVerified" BOOLEAN NOT NULL DEFAULT false,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "EmailVerify_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -34,6 +53,12 @@ CREATE TABLE "PasswordReset" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_idNumber_key" ON "User"("idNumber");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "EmailVerify_email_key" ON "EmailVerify"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "PasswordReset_userId_key" ON "PasswordReset"("userId");
