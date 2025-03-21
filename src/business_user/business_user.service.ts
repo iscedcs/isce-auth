@@ -45,7 +45,7 @@ export class BusinessService {
       });
 
       if (existingBusiness) {
-        throw new ConflictException('Business with these details already exists');
+        throw new ConflictException('Business user with these details already exists');
       }
 
       // Hash password
@@ -70,7 +70,7 @@ export class BusinessService {
       
       return {
         success: true,
-        message: 'Business created successfully',
+        message: 'Business user created successfully',
         data: businessWithoutPassword,
       };
     } catch (error) {

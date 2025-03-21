@@ -71,14 +71,11 @@ export class CreateBusinessDto {
   idNumber: string;
 
   @ApiProperty({
-    description: 'Password (min 8 characters, must include uppercase, lowercase, and number)',
+    description: 'Password',
     example: 'Password123',
   })
   @IsString()
   @MinLength(8)
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/, {
-    message: 'Password too weak',
-  })
   password: string;
 
   @ApiProperty({
@@ -90,13 +87,13 @@ export class CreateBusinessDto {
   confirmPassword: string;
 
   @ApiProperty({
-    description: 'Role of the user (optional, defaults to USER)',
+    description: 'Role of the user (optional, defaults to BUSINESS_USER)',
     enum: UserType,
     required: false,
   })
   @IsOptional()
   @IsEnum(UserType)
-  role?: UserType;
+  role: UserType = UserType.BUSINESS_USER; // Default to BUSINESS_USER
 }
 
 // DTO for logging in a business user
