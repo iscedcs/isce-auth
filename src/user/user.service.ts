@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException, HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
-import { CreateAdminUserDto, UpdateUserDto } from './dto/user.dto';
+import { AdminRegisterDto, UpdateUserDto } from './dto/user.dto';
 import { DatabaseService } from '../database/database.service';
 import * as bcrypt from 'bcrypt';
 import { IdentificationType, UserType } from '@prisma/client';
@@ -10,8 +10,8 @@ import { transformToUserDto } from 'src/auth/dto/auth.dto';
 export class UserService {
   constructor(private readonly databaseService: DatabaseService) {}
 
-    async createAdminUser(createAdminUserDto: CreateAdminUserDto) {
-        const { email, password, address, fullname, phone, dob} = createAdminUserDto;
+    async createAdminUser(createAdminUserDto: AdminRegisterDto) {
+        const { email, password, address, firstName, lastName, phone, dob} = createAdminUserDto;
 
         try {
 
@@ -50,7 +50,8 @@ export class UserService {
                 data: {
                 email: formattedEmail,
                 password: hashedPassword,
-                fullname,
+                firstName,
+                lastName,
                 address: address,
                 phone: phone,
                 userType: "ADMIN",
@@ -123,7 +124,7 @@ export class UserService {
     async updateUser(id: string, updateUserDto: UpdateUserDto) {
       try {
 
-          const { dob, email, fullname, phone } = updateUserDto;
+          const { dob, email, firstName, lastName, phone } = updateUserDto;
           let formattedDob: string;
           let utcDob: Date;
           let formattedEmail: string;
@@ -161,7 +162,7 @@ export class UserService {
           
           const updatedUser = await this.databaseService.user.update({
             where: { id, deletedAt: null },
-            data: { fullname: fullname, phone: phone, dob: utcDob, email: formattedEmail},
+            data: { firstName: firstName, lastName: lastName, phone: phone, dob: utcDob, email: formattedEmail},
           });
 
           // Transform user to DTO for the response

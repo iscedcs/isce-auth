@@ -1,16 +1,15 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Req, Res, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query, Req, Res, UseGuards, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { EmailDto, RegisterDto, ResetPasswordDto, SendResetTokenDto, VerifyEmailDto } from './dto/auth.dto';
 import { LoginDto } from './dto/auth.dto'; 
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
+import { UserType } from '@prisma/client';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
-
 
   @Post('request-verify-email-code')
   @ApiOperation({ summary: 'Request an email verification code' })
@@ -32,24 +31,19 @@ export class AuthController {
     return this.authService.verifyEmailCode(email, code);
   }
 
-
   @Post('/signup')
   @ApiOperation({ summary: 'Sign up a new user' })
   @ApiResponse({ status: 201, description: 'User created successfully.'})
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  signup(
-    @Body(ValidationPipe) dto: RegisterDto) {
-    return this.authService.signup(dto);
+  async signup(@Body() dto: RegisterDto, @Query('userType') userType: UserType) {  
+    return this.authService.signup(dto, userType || UserType.USER);
   }
-
-
-
 
   @Post('signin')
   @ApiOperation({ summary: 'Sign in a user' })
   @ApiResponse({ status: 201, description: 'User signed in successfully.'})
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  signin(
+  async signin(
     @Body(ValidationPipe) dto: LoginDto, 
     @Req() req: Request, 
     @Res() res: Response) {

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/database.module';
-import { BusinessUserModule } from './business_user/business_user.module';
+// import { BusinessUserModule } from './business_user/business_user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 
@@ -20,7 +20,7 @@ import { JwtModule } from '@nestjs/jwt';
     UserModule, 
     AuthModule, 
     DatabaseModule,
-    BusinessUserModule
+    // BusinessUserModule
   ],
   controllers: [],
   providers: [],

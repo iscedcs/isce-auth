@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Headers, HttpException, HttpStatus, Param, Patch, Post, Query, UseGuards, ValidationPipe } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateAdminUserDto, UpdateUserDto } from './dto/user.dto';
+import { AdminRegisterDto, UpdateUserDto } from './dto/user.dto';
 import { UserType } from '@prisma/client';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
@@ -20,7 +20,7 @@ export class UserController {
     @ApiOperation({ summary: 'Create a new user' })
     @ApiResponse({ status: 201, description: 'User created successfully.' })
     @ApiResponse({ status: 400, description: 'Bad Request.' })
-    createAdminUser(@Body(ValidationPipe) createAdminUserDto: CreateAdminUserDto, @Headers('secret-key') secretKey: string) {
+    createAdminUser(@Body(ValidationPipe) createAdminUserDto: AdminRegisterDto, @Headers('secret-key') secretKey: string) {
         if (secretKey !== process.env.ADMIN_SECRET_KEY) {
             throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
         }

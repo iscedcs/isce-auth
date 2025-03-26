@@ -1,6 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IdentificationType } from '@prisma/client';
 import { Expose, plainToClass } from 'class-transformer';
-import { IsDate, IsEmail, IsNotEmpty, IsOptional, IsString, MinLength, ValidateNested } from 'class-validator';
+import { IsDate, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength, ValidateNested } from 'class-validator';
 
 export class EmailDto {
   @ApiProperty({ description: 'User email', example: 'teddy@gmail.com' })
@@ -22,10 +23,15 @@ export class VerifyEmailDto {
 }
 
 export class RegisterDto {
-  @ApiProperty({ description: 'User name', example: 'Elon Musk' })
+  @ApiProperty({ description: 'first name', example: 'Elon' })
   @IsNotEmpty()
   @IsString()
-  fullname: string;
+  firstName: string;
+
+  @ApiProperty({ description: 'last name', example: 'Musk' })
+  @IsNotEmpty()
+  @IsString()
+  lastName: string;
 
   @ApiProperty({ description: 'User phone number', example: '09067584674' })
   @IsNotEmpty()
@@ -38,9 +44,38 @@ export class RegisterDto {
   @IsNotEmpty()
   email: string;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  businessName?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  position?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  displayPicture?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  businessAddress?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  idNumber?: string;
+
+  @ApiProperty({ enum: IdentificationType })
+  @IsEnum(IdentificationType)
+  identificationType: IdentificationType;
+
   @ApiProperty({ description: 'User date of birth', example: 'mm/dd/yyyy' })
   @IsNotEmpty()
-  dob: Date;
+  dob?: Date;
 
   @ApiProperty({ description: 'User address', example: '123 Main St' })
   @IsNotEmpty()
@@ -100,10 +135,16 @@ export class UserDto {
   email: string;
 
   @Expose()
-  fullname: string;
+  firstName: string;
+
+  @Expose()
+  lastName: string;
 
   @Expose()
   phonenumber: string;
+
+  @Expose()
+  address: string;
 
   @Expose()
   role: string;
@@ -122,6 +163,9 @@ export class UserDto {
 
   @Expose()
   blacklist: boolean;
+
+  @Expose()
+  dob: Date;
 
   @Expose()
   createdAt: Date;

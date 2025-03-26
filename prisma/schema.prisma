@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,50 +8,99 @@ datasource db {
 }
 
 model User {
-  id                  String             @id @default(uuid())
-  fullname            String
-  organizationName    String?
-  email               String             @unique
-  displayPicture      String?
-  organizationAddress String?
-  identificationType  IdentificationType
-  idNumber            String?            @unique
-  password            String
-  phone               String
-  address             String?
-  dob                 DateTime?
-  userType            UserType           @default(USER)
-  passwordReset       PasswordReset[]
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
-  deletedAt           DateTime?
+  id                          String   @id @default(uuid())
+  firstName                   String?
+  lastName                    String?
+  email                       String   @unique
+  phone                       String   @unique
+  password                    String
+  businessName                String?
+  displayPicture              String?
+  businessAddress             String?
+  identificationType          IdentificationType
+  idNumber                    String?            @unique
+  address                     String?
+  dob                         DateTime?
+  userType                    UserType           @default(USER)
+  passwordReset               PasswordReset?
+  associatedBusinessId        String?
+  position                    String?
+  isBusinessAdmin             Boolean  @default(false)
+  invitedByUserId             String?
+  deviceId                    String?
+  lastLogin                   DateTime?
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+  deletedAt                   DateTime?
+  devices                     Device[]
 }
 
 model EmailVerify {
-  id         String   @id @default(uuid())
-  email      String   @unique
-  verifyCode String
-  isVerified Boolean  @default(false)
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id                          String   @id @default(uuid())
+  email                       String   @unique
+  verifyCode                  String
+  isVerified                  Boolean  @default(false)
+  expiresAt                   DateTime
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
 }
 
 model PasswordReset {
-  id        String   @id @default(uuid())
-  userId    String   @unique
-  resetCode String
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                          String   @id @default(uuid())
+  userId                      String   @unique
+  resetCode                   String
+  expiresAt                   DateTime
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+  user                        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model Device {
+  id                         String   @id @default(uuid())
+  userId                     String
+  type                       DeviceType
+  nfcUid                     String   @unique
+  label                      String?
+  isActive                   Boolean  @default(true)
+  isPrimary                  Boolean  @default(false)
+  assignedAt                 DateTime
+  lastUsedAt                 DateTime?
+  user                       User @relation(fields: [userId], references: [id])
+}
+
+enum DeviceType {
+  CARD
+  STICKER
+  WRISTBAND
+  QR
+}
+
+enum PrivacyLevel {
+  PUBLIC
+  PRIVATE
+  FRIENDS_ONLY
+}
+
+model Address {
+  id          String   @id @default(uuid())
+  addressText String
+  latitude    Float
+  longitude   Float
+}
+
+model ContactInfo {
+  id      String   @id @default(uuid())
+  phone   String?
+  email   String?
+}
+
+
 enum UserType {
-  USER
-  BUSINESS_USER
   ADMIN
+  USER
+  SUPER_ADMIN
+  BUSINESS_USER
+  EMPLOYEE
 }
 
 enum IdentificationType {
