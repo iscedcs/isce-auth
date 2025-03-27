@@ -63,20 +63,23 @@ async function bootstrap() {
     .setDescription('Authentication for ISCE product')
     .setVersion('1.0')
     .addTag('ISCE')
+    .addSecurityRequirements('bearer')
     .addBearerAuth(
       { 
-        type: 'http', 
-        scheme: 'bearer', 
-        bearerFormat: 'JWT' 
+        description: `Please enter token in following format: Bearer <JWT>`,
+        name: 'Authorization',
+        bearerFormat: 'Bearer',
+        scheme: 'Bearer',
+        type: 'http',
+        in: 'Header'
       }, 
-      'JWT-auth' // The name used to reference this auth method in the Swagger UI
+      'access-token' // The name used to reference this auth method in the Swagger UI
     )
     .build();
  const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
  const PORT = process.env.PORT || 3223;  // Ensure it uses the correct port
-  app.enableCors();  // If CORS issues
 await app.listen(PORT);
 }
 bootstrap();

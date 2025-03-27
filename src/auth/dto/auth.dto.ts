@@ -107,6 +107,13 @@ export class LoginDto {
   password: string;
 }
 
+export class AdminVerifyEmailDto {
+  @ApiProperty({ description: 'Admin Email', example: 'example@gmail.com' })
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+}
+
 export class ResetPasswordDto {
   @ApiProperty({ description: 'Code to reset password', example: 'gacrow93q7r846t734o8ey817q6etgedfkdh' })
   @IsNotEmpty()

@@ -100,6 +100,66 @@ export class AuthService {
         }
     }
 
+    async verifyAdminEmail(superAdminId: string, adminEmail: string) {
+        try {
+            // Verify the creator is a SUPER_ADMIN
+            const superAdmin = await this.databaseService.user.findUnique({
+                where: { id: superAdminId }
+            });
+
+            if (!superAdmin || superAdmin.userType !== UserType.SUPER_ADMIN) {
+                throw new UnauthorizedException('Only Super Admin can verify admin emails');
+            }
+
+            const formattedEmail = adminEmail.toLowerCase();
+
+            // Check if email already exists
+            const existingUser = await this.databaseService.user.findUnique({
+                where: { email: formattedEmail }
+            });
+
+            if (existingUser) {
+                throw new BadRequestException('Email already exists');
+            }
+
+               // Create email verification record
+               const verifyCode = generateCode();
+               const expiresAt = new Date();
+               expiresAt.setMinutes(expiresAt.getMinutes() + 5);
+   
+               await this.databaseService.emailVerify.upsert({
+                   where: { email: formattedEmail },
+                   update: { 
+                       verifyCode, 
+                       expiresAt, 
+                       isVerified: true,
+                       userType: UserType.ADMIN 
+                   },
+                   create: { 
+                       email: formattedEmail, 
+                       verifyCode, 
+                       expiresAt, 
+                       isVerified: true,
+                       userType: UserType.ADMIN 
+                   },
+               });
+
+               // Send verification email to admin
+            await this.mailService.sendVerifyEmail(formattedEmail, verifyCode);
+
+            return {
+                success: true,
+                message: 'Admin email verified successfully. Admin can now complete registration.',
+                email: formattedEmail
+            };
+        } catch (error) {
+            throw new HttpException(
+                error.message || 'Failed to verify admin email',
+                HttpStatus.BAD_REQUEST
+            );
+    }
+        }
+
     async signup(dto: RegisterDto, userType: UserType) {
       return this.createUserByType(dto, userType);
   }
@@ -386,6 +446,155 @@ export class AuthService {
 
     async comparePasswords(args: { password: string, hash: string }) {
         return await bcrypt.compare(args.password, args.hash);
+    }
+
+    async getAdminStats(superAdminId: string) {
+        try {
+            const superAdmin = await this.databaseService.user.findUnique({
+                where: { id: superAdminId }
+            });
+
+            if (!superAdmin || superAdmin.userType !== UserType.SUPER_ADMIN) {
+                throw new UnauthorizedException('Only Super Admin can view admin stats');
+            }
+
+            const adminCount = await this.databaseService.user.count({
+                where: { userType: UserType.ADMIN }
+            });
+
+            const activeAdmins = await this.databaseService.user.count({
+                where: { 
+                    userType: UserType.ADMIN,
+                    isBlocked: false
+                }
+            });
+
+            const blockedAdmins = await this.databaseService.user.count({
+                where: { 
+                    userType: UserType.ADMIN,
+                    isBlocked: true
+                }
+            });
+
+            return {
+                success: true,
+                stats: {
+                    total: adminCount,
+                    active: activeAdmins,
+                    blocked: blockedAdmins
+                }
+            };
+        } catch (error) {
+            throw new HttpException(
+                error.message || 'Failed to get admin stats',
+                HttpStatus.BAD_REQUEST
+            );
+        }
+    }
+
+    async blockAdmin(superAdminId: string, adminId: string) {
+        try {
+            const superAdmin = await this.databaseService.user.findUnique({
+                where: { id: superAdminId }
+            });
+
+            if (!superAdmin || superAdmin.userType !== UserType.SUPER_ADMIN) {
+                throw new UnauthorizedException('Only Super Admin can block admins');
+            }
+
+            const admin = await this.databaseService.user.findUnique({
+                where: { id: adminId }
+            });
+
+            if (!admin || admin.userType !== UserType.ADMIN) {
+                throw new BadRequestException('Invalid admin account');
+            }
+
+            const blockedAdmin = await this.databaseService.user.update({
+                where: { id: adminId },
+                data: { isBlocked: true }
+            });
+
+            
+            return {
+                success: true,
+                message: `Admin ${blockedAdmin.email} has been blocked`
+            };
+        } catch (error) {
+            throw new HttpException(
+                error.message || 'Failed to block admin',
+                HttpStatus.BAD_REQUEST
+            );
+        }
+    }
+
+    async unblockAdmin(superAdminId: string, adminId: string) {
+        try {
+            const superAdmin = await this.databaseService.user.findUnique({
+                where: { id: superAdminId }
+            });
+
+            if (!superAdmin || superAdmin.userType !== UserType.SUPER_ADMIN) {
+                throw new UnauthorizedException('Only Super Admin can unblock admins');
+            }
+
+            const admin = await this.databaseService.user.findUnique({
+                where: { id: adminId }
+            });
+
+            if (!admin || admin.userType !== UserType.ADMIN) {
+                throw new BadRequestException('Invalid admin account');
+            }
+
+            const unblockedAdmin = await this.databaseService.user.update({
+                where: { id: adminId },
+                data: { isBlocked: false }
+            });
+
+            return {
+                success: true,
+                message: `Admin ${unblockedAdmin.email} has been unblocked`
+            };
+        } catch (error) {
+            throw new HttpException(
+                error.message || 'Failed to unblock admin',
+                HttpStatus.BAD_REQUEST
+            );
+        }
+    }
+
+    async deleteAdmin(superAdminId: string, adminId: string) {
+        try {
+            const superAdmin = await this.databaseService.user.findUnique({
+                where: { id: superAdminId }
+            });
+
+            if (!superAdmin || superAdmin.userType !== UserType.SUPER_ADMIN) {
+                throw new UnauthorizedException('Only Super Admin can delete admins');
+            }
+
+            const admin = await this.databaseService.user.findUnique({
+                where: { id: adminId }
+            });
+
+            if (!admin || admin.userType !== UserType.ADMIN) {
+                throw new BadRequestException('Invalid admin account');
+            }
+
+            const deletedAdmin = await this.databaseService.user.delete({
+                where: { id: adminId }
+            });
+
+            return {
+                success: true,
+                message: `Admin ${deletedAdmin.email} has been deleted`
+            };
+        } catch (error) {
+            throw new HttpException(
+                error.message || 'Failed to delete admin',
+                HttpStatus.BAD_REQUEST
+            );
+        }
     }
 
     async signToken(user: User) {
