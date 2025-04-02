@@ -17,6 +17,7 @@ model User {
   businessName                String?
   displayPicture              String?
   businessAddress             String?
+  isEmailVerified             Boolean @default(false)
   identificationType          IdentificationType
   idNumber                    String?            @unique
   address                     String?

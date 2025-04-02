@@ -160,6 +160,103 @@ export class AuthService {
     }
         }
 
+    async verifyUserEmail(userId: string, verificationCode: string) {
+            try {
+                const user = await this.databaseService.user.findUnique({
+                    where: { id: userId }
+                });
+        
+                if (!user) {
+                    throw new BadRequestException('User not found');
+                }
+        
+                if (user.isEmailVerified) {
+                    throw new BadRequestException('Email is already verified');
+                }
+        
+                const emailVerification = await this.databaseService.emailVerify.findFirst({
+                    where: { 
+                        email: user.email,
+                        verifyCode: verificationCode
+                    }
+                });
+        
+                if (!emailVerification) {
+                    throw new BadRequestException('Invalid verification code');
+                }
+        
+                if (emailVerification.expiresAt < new Date()) {
+                    throw new BadRequestException('Verification code has expired');
+                }
+        
+                // Update user email verification status
+                const updatedUser = await this.databaseService.user.update({
+                    where: { id: userId },
+                    data: { isEmailVerified: true }
+                });
+        
+                return {
+                    success: true,
+                    message: 'Email verified successfully',
+                    user: transformToUserDto(updatedUser)
+                };
+            } catch (error) {
+                throw new HttpException(
+                    error.message || 'Failed to verify email',
+                    HttpStatus.BAD_REQUEST
+                );
+            }
+        }
+        
+        async sendVerificationEmail(userId: string) {
+            try {
+                const user = await this.databaseService.user.findUnique({
+                    where: { id: userId }
+                });
+        
+                if (!user) {
+                    throw new BadRequestException('User not found');
+                }
+        
+                if (user.isEmailVerified) {
+                    throw new BadRequestException('Email is already verified');
+                }
+        
+                const verifyCode = generateCode();
+                const expiresAt = new Date();
+                expiresAt.setMinutes(expiresAt.getMinutes() + 5);
+        
+                // Create or update email verification record
+                await this.databaseService.emailVerify.upsert({
+                    where: { email: user.email },
+                    update: { 
+                        verifyCode, 
+                        expiresAt, 
+                        isVerified: false 
+                    },
+                    create: { 
+                        email: user.email, 
+                        verifyCode, 
+                        expiresAt, 
+                        isVerified: false 
+                    }
+                });
+        
+                // Send verification email
+                await this.mailService.sendVerifyEmail(user.email, verifyCode);
+        
+                return {
+                    success: true,
+                    message: 'Verification email sent successfully'
+                };
+            } catch (error) {
+                throw new HttpException(
+                    error.message || 'Failed to send verification email',
+                    HttpStatus.BAD_REQUEST
+                );
+            }
+        }
+
     async signup(dto: RegisterDto, userType: UserType) {
       return this.createUserByType(dto, userType);
   }
@@ -185,26 +282,31 @@ export class AuthService {
                 where: { email: formattedEmail }
             });
 
-            // Check email verification for non-admin users
-            if (!skipEmailVerification && userType !== UserType.SUPER_ADMIN) {
-                if (!emailRecord || !emailRecord.isVerified) {
-                    throw new BadRequestException('Email is not verified. Verify and try again.');
-                }
-            }
+            // Only check email verification for ADMIN users
+        if (userType === UserType.ADMIN) {
+            const emailRecord = await this.databaseService.emailVerify.findUnique({
+                where: { email: formattedEmail }
+            });
 
-            // Check password confirmation
-            if (password !== confirmpassword) {
-                throw new BadRequestException('Passwords do not match.');
+            if (!emailRecord || !emailRecord.isVerified) {
+                throw new BadRequestException('Admin email must be verified by Super Admin first.');
             }
-            const hashedPassword = await this.hashPassword(password);
+        }
 
-            let userData: any = {
-                email: formattedEmail,
-                phone,
-                password: hashedPassword,
-                userType,
-                identificationType: IdentificationType.NIN
-            };
+        // Check password confirmation
+        if (password !== confirmpassword) {
+            throw new BadRequestException('Passwords do not match.');
+        }
+        const hashedPassword = await this.hashPassword(password);
+
+        let userData: any = {
+            email: formattedEmail,
+            phone,
+            password: hashedPassword,
+            userType,
+            identificationType: IdentificationType.NIN,
+            isEmailVerified: userType === UserType.ADMIN // Only admin emails are pre-verified
+        };
 
             // Add type-specific fields
             switch (userType) {
