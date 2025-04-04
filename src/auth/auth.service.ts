@@ -369,12 +369,19 @@ export class AuthService {
             // Create user
             const createdUser = await this.databaseService.user.create({ data: userData });
 
+            const accessToken = await this.signToken(createdUser);
+
             // Transform user to DTO
             const userDto = transformToUserDto(createdUser);
+            
             return {
                 success: true,
                 message: `${userType} created successfully`,
-                user: userDto,
+                data: {
+                    accessToken,
+                    email: createdUser.email,
+                    userType: createdUser.userType,
+                }
             };
         } catch (error) {
             throw new HttpException(
@@ -417,9 +424,20 @@ export class AuthService {
 
             res.cookie('token', token);
 
-            return res.send(`Signed in Successfully jwtToken: ${token}`);
+            return res.json({
+                status: HttpStatus.OK,
+                message: 'Signed in successfully',
+                data: {
+                    token,
+                    email: foundUser.email,
+                    userType: foundUser.userType
+                }
+            });   
         } catch (error) {
-            throw new HttpException(error.message || 'Invalid token or request', HttpStatus.BAD_REQUEST);
+            throw new HttpException(
+                error.message || 'Invalid token or request', 
+                HttpStatus.BAD_REQUEST
+            );
         }
     }
 
