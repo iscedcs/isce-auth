@@ -51,7 +51,7 @@ export class UserController {
         type: String,
       })
     getAllUsers(
-        @Query('role') userType?: UserType,
+        @Query('userType') userType?: UserType,
         @Query('limit') limit?: number,
         @Query('offset') offset?: number,
     ) {
