@@ -133,14 +133,13 @@ export class AuthService {
                        verifyCode, 
                        expiresAt, 
                        isVerified: true,
-                       userType: UserType.ADMIN 
+                       // Removed userType as it is not a valid property
                    },
                    create: { 
                        email: formattedEmail, 
                        verifyCode, 
                        expiresAt, 
                        isVerified: true,
-                       userType: UserType.ADMIN 
                    },
                });
 
@@ -304,6 +303,7 @@ export class AuthService {
             phone,
             password: hashedPassword,
             userType,
+            displayPicture,
             identificationType: IdentificationType.NIN,
             isEmailVerified: userType === UserType.ADMIN // Only admin emails are pre-verified
         };
@@ -324,7 +324,6 @@ export class AuthService {
                         firstName,
                         lastName,
                         businessName,
-                        displayPicture,
                         businessAddress,
                     });
                     break;

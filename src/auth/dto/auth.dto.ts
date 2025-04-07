@@ -54,7 +54,11 @@ export class RegisterDto {
   @IsString()
   position?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: 'URL or path to the user’s display picture (optional)',
+    example: 'https://example.com/images/john.jpg',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   displayPicture?: string;
