@@ -152,7 +152,25 @@ export class UserDto {
   lastName: string;
 
   @Expose()
-  phonenumber: string;
+  phone: string;
+
+  @Expose()
+  businessName: string;
+
+  @Expose()
+  position: string;
+
+  @Expose()
+  displayPicture: string;
+
+  @Expose()
+  businessAddress: string;
+
+  @Expose()
+  idNumber: string;
+
+  @Expose()
+  identificationType: IdentificationType;
 
   @Expose()
   address: string;
