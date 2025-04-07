@@ -72,9 +72,11 @@ export class UserService {
         }
     }
 
-    async getAllUsers({ userType, limit = 10, offset = 0 }: { userType?: UserType, limit?: number, offset?: number }) {
+    async getAllUsers({ userType, limit = 10, offset = 0 }: { userType?: UserType; limit?: number; offset?: number }) {
         try {
           const where = userType ? { userType } : { deletedAt: null };
+
+          console.log("limit", limit);
     
           const users = await this.databaseService.user.findMany({
             where,
