@@ -485,7 +485,6 @@ export class AuthService {
                 HttpStatus.BAD_REQUEST
             );    
         }
-
 }
 
     async signin(dto: LoginDto, req: Request, res: Response) {
