@@ -12,33 +12,33 @@ async function bootstrap() {
   const databaseService = app.get(DatabaseService);
 
   // Ensure SUPER_ADMIN exists
-  const superAdminEmail = 'superadmin@isce.com';
-  const superAdminPhone = '08012345678';
-  const superAdminPassword = 'password';
-  const hashedPassword = await bcrypt.hash(superAdminPassword, 10);
+  // const superAdminEmail = 'superadmin@isce.com';
+  // const superAdminPhone = '08012345678';
+  // const superAdminPassword = 'password';
+  // const hashedPassword = await bcrypt.hash(superAdminPassword, 10);
 
-  const existingSuperAdmin = await databaseService.user.findFirst({ 
-    where: {
-       email: superAdminEmail,
-       userType: UserType.SUPER_ADMIN,
-      },
-   });
+  // const existingSuperAdmin = await databaseService.user.findFirst({ 
+  //   where: {
+  //      email: superAdminEmail,
+  //      userType: UserType.SUPER_ADMIN,
+  //     },
+  //  });
 
-   if (!existingSuperAdmin) {
-    await databaseService.user.create({
-      data: {
-        email: superAdminEmail,
-        phone: superAdminPhone,
-        password: hashedPassword,
-        userType: UserType.SUPER_ADMIN,
-        identificationType: IdentificationType.NIN,
-        idNumber: 'SUPER_ADMIN_ID',
-      },
-    });
-    console.log('Super Admin created successfully');
-  } else {
-    console.log('Super Admin already exists');
-   }
+  //  if (!existingSuperAdmin) {
+  //   await databaseService.user.create({
+  //     data: {
+  //       email: superAdminEmail,
+  //       phone: superAdminPhone,
+  //       password: hashedPassword,
+  //       userType: UserType.SUPER_ADMIN,
+  //       identificationType: IdentificationType.NIN,
+  //       idNumber: 'SUPER_ADMIN_ID',
+  //     },
+  //   });
+  //   console.log('Super Admin created successfully');
+  // } else {
+  //   console.log('Super Admin already exists');
+  //  }
    
   app.useGlobalPipes(
     new ValidationPipe({

@@ -42,20 +42,23 @@ export class UserController {
         name: 'limit',
         required: false,  // Making the query parameter optional
         description: 'Filter by limit',
-        type: String,
+        type: Number,
       })
       @ApiQuery({
         name: 'offset',
         required: false,  // Making the query parameter optional
         description: 'Offset',
-        type: String,
+        type: Number,
       })
     getAllUsers(
-        @Query('role') userType?: UserType,
-        @Query('limit') limit?: number,
-        @Query('offset') offset?: number,
+        @Query('userType') userType?: UserType,
+        @Query('limit') limit?: string,
+        @Query('offset') offset?: string,
     ) {
-        return this.userService.getAllUsers({ userType, limit, offset });
+
+      const parsedLimit = limit ? parseInt(limit, 10) : 10;
+      const parsedOffset = offset ? parseInt(offset, 10) : 0;
+        return this.userService.getAllUsers({ userType, limit: parsedLimit, offset: parsedOffset });
     }
 
     @Get('one/:id')

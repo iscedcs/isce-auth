@@ -2,6 +2,8 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IdentificationType } from '@prisma/client';
 import { Expose, plainToClass } from 'class-transformer';
 import { IsDate, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength, ValidateNested } from 'class-validator';
+import { BusinessPermissionsDto } from 'src/utils/common/business-permissions.dto';
+import { IscePermissionsDto } from 'src/utils/common/isce-permissions.dto';
 
 export class EmailDto {
   @ApiProperty({ description: 'User email', example: 'teddy@gmail.com' })
@@ -23,15 +25,15 @@ export class VerifyEmailDto {
 }
 
 export class RegisterDto {
-  // @ApiProperty({ description: 'first name', example: 'Elon' })
-  // @IsNotEmpty()
-  // @IsString()
-  // firstName: string;
+  @ApiProperty({ description: 'first name', example: 'Elon' })
+  @IsNotEmpty()
+  @IsString()
+  firstName?: string;
 
-  // @ApiProperty({ description: 'last name', example: 'Musk' })
-  // @IsNotEmpty()
-  // @IsString()
-  // lastName: string;
+  @ApiProperty({ description: 'last name', example: 'Musk' })
+  @IsNotEmpty()
+  @IsString()
+  lastName?: string;
 
   @ApiProperty({ description: 'User phone number', example: '09067584674' })
   @IsNotEmpty()
@@ -44,17 +46,21 @@ export class RegisterDto {
   @IsNotEmpty()
   email: string;
 
-  // @ApiPropertyOptional()
-  // @IsOptional()
-  // @IsString()
-  // businessName?: string;
-
-  // @ApiPropertyOptional()
-  // @IsOptional()
-  // @IsString()
-  // position?: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  businessName?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  position?: string;
+
+  @ApiPropertyOptional({
+    description: 'URL or path to the user’s display picture (optional)',
+    example: 'https://example.com/images/john.jpg',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   displayPicture?: string;
@@ -69,19 +75,20 @@ export class RegisterDto {
   @IsString()
   idNumber?: string;
 
-  @ApiProperty({ enum: IdentificationType })
+  // Optional fields for business users only
+  @ApiPropertyOptional({ enum: IdentificationType })
   @IsOptional()
   @IsEnum(IdentificationType)
   identificationType?: IdentificationType;
 
-  @ApiProperty({ description: 'User date of birth', example: 'mm/dd/yyyy' })
-  @IsNotEmpty()
-  dob?: Date;
+  // @ApiProperty({ description: 'User date of birth', example: 'mm/dd/yyyy' })
+  // @IsNotEmpty()
+  // dob?: Date;
 
-  @ApiProperty({ description: 'User address', example: '123 Main St' })
-  @IsNotEmpty()
-  @IsString()
-  address: string;
+  // @ApiProperty({ description: 'User address', example: '123 Main St' })
+  // @IsNotEmpty()
+  // @IsString()
+  // address: string;
 
   @ApiProperty({ description: 'User password', example: 'password123' })
   @IsNotEmpty()
@@ -103,56 +110,56 @@ export class RegisterDto {
   @ApiPropertyOptional({ type: () => BusinessPermissionsDto })
   @ValidateNested()
   @IsOptional()
-  business_permissions?: BusinessPermissionsDto; 
+  business_permissions?: BusinessPermissionsDto;
 }
 
-export class IscePermissionsDto {
-  @ApiProperty({ default: false })
-  @IsOptional()
-  connect?: boolean;
+// export class IscePermissionsDto {
+//   @ApiProperty({ default: false })
+//   @IsOptional()
+//   connect?: boolean;
 
-  @ApiProperty({ default: false })
-  @IsOptional()
-  connect_plus?: boolean;
+//   @ApiProperty({ default: false })
+//   @IsOptional()
+//   connect_plus?: boolean;
 
-  @ApiProperty({ default: false })
-  @IsOptional()
-  store?: boolean;
+//   @ApiProperty({ default: false })
+//   @IsOptional()
+//   store?: boolean;
 
-  @ApiProperty({ default: false })
-  @IsOptional()
-  wallet?: boolean;
+//   @ApiProperty({ default: false })
+//   @IsOptional()
+//   wallet?: boolean;
 
-  @ApiProperty({ default: false })
-  @IsOptional()
-  event?: boolean;
+//   @ApiProperty({ default: false })
+//   @IsOptional()
+//   event?: boolean;
 
-  @ApiProperty({ default: false })
-  @IsOptional()
-  access?: boolean;
-}
+//   @ApiProperty({ default: false })
+//   @IsOptional()
+//   access?: boolean;
+// }
 
-export class BusinessPermissionsDto {
-  @ApiProperty({ default: false })
-  @IsOptional()
-  invoicing?: boolean;
+// export class BusinessPermissionsDto {
+//   @ApiProperty({ default: false })
+//   @IsOptional()
+//   invoicing?: boolean;
 
-  @ApiProperty({ default: false })
-  @IsOptional()
-  appointment?: boolean;
+//   @ApiProperty({ default: false })
+//   @IsOptional()
+//   appointment?: boolean;
 
-  @ApiProperty({ default: false })
-  @IsOptional()
-  chat?: boolean;
+//   @ApiProperty({ default: false })
+//   @IsOptional()
+//   chat?: boolean;
 
-  @ApiProperty({ default: false })
-  @IsOptional()
-  analytics?: boolean;
+//   @ApiProperty({ default: false })
+//   @IsOptional()
+//   analytics?: boolean;
 
-  @ApiProperty({ default: false })
-  @IsOptional()
-  services?: boolean;
-}
+//   @ApiProperty({ default: false })
+//   @IsOptional()
+//   services?: boolean;
+// }
 
 export class LoginDto {
   @ApiProperty({ description: 'User email', example: 'elonmusk@gmail.com' })
@@ -207,7 +214,25 @@ export class UserDto {
   lastName: string;
 
   @Expose()
-  phonenumber: string;
+  phone: string;
+
+  @Expose()
+  businessName: string;
+
+  @Expose()
+  position: string;
+
+  @Expose()
+  displayPicture: string;
+
+  @Expose()
+  businessAddress: string;
+
+  @Expose()
+  idNumber: string;
+
+  @Expose()
+  identificationType: IdentificationType;
 
   @Expose()
   address: string;

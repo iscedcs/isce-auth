@@ -133,14 +133,13 @@ export class AuthService {
                        verifyCode, 
                        expiresAt, 
                        isVerified: true,
-                       userType: UserType.ADMIN 
+                       // Removed userType as it is not a valid property
                    },
                    create: { 
                        email: formattedEmail, 
                        verifyCode, 
                        expiresAt, 
                        isVerified: true,
-                       userType: UserType.ADMIN 
                    },
                });
 
@@ -261,27 +260,40 @@ export class AuthService {
       return this.createUserByType(dto, userType);
   }
 
-  private async createUserByType(
-    data: RegisterDto | UserDto,
-    userType: UserType,
-    skipEmailVerification = false,
-) {
-    try {
-        const { 
-            firstName, lastName, email, phone, password, confirmpassword,
-            businessName, businessAddress, displayPicture, position,
-            address, dob, identificationType, idNumber 
-        } = data as RegisterDto;
+    private async createUserByType(
+        data: RegisterDto | UserDto,
+        userType: UserType,
+        skipEmailVerification = false,
+    ) {
+        try {
+            const { 
+                email, phone, password, confirmpassword, displayPicture,
+                businessAddress, 
+                } = data as RegisterDto;
 
-        const formattedEmail = email.toLowerCase();
+            const formattedEmail = email.toLowerCase();
 
-        // Check if the user already exists
-        const foundUser = await this.databaseService.user.findUnique({ 
-            where: { email: formattedEmail } 
-        });
-        if (foundUser) {
-            throw new BadRequestException('Email already exists');
-        }
+            // Check if the user already exists
+            const existingUser = await this.databaseService.user.findFirst({ 
+                where: {
+                    OR: [
+                        { email: formattedEmail },
+                        { phone: phone }
+                    ] 
+                }
+            });
+
+            if (existingUser) {
+                if (existingUser.email === formattedEmail) {
+                    throw new BadRequestException('Email already exists');
+                }
+                if (existingUser.phone === phone) {
+                    throw new BadRequestException('Phone number already exists');
+                }
+            }
+            const emailRecord = await this.databaseService.emailVerify.findUnique({
+                where: { email: formattedEmail }
+            });
 
         // Only check email verification for ADMIN users
         if (userType === UserType.ADMIN) {
@@ -306,171 +318,174 @@ export class AuthService {
             phone,
             password: hashedPassword,
             userType,
-            identificationType: IdentificationType.NIN,
             isEmailVerified: userType === UserType.ADMIN
         };
 
-        // Add type-specific fields and permissions
+        // Add identificationType only for BUSINESS_USER
+        // if (userType === UserType.BUSINESS_USER) {
+        //     if (!identificationType) {
+        //         throw new BadRequestException('Business users must provide identification type');
+        //     }
+        //     userData.identificationType = identificationType;
+        // }
+
+            // Add permissions based on user type
         switch (userType) {
             case UserType.USER:
                 Object.assign(userData, {
-                    firstName,
-                    lastName,
-                    address,
-                    dob: dob ? new Date(dob) : null,
                     isce_permissions: {
                         create: {
                             connect: true,
                             connect_plus: false,
-                            store: true,
+                            store: false,
                             wallet: false,
                             event: true,
                             access: false
                         }
                     }
                 });
-                break;
+                    break;
 
-            case UserType.BUSINESS_USER:
-                Object.assign(userData, {
-                    firstName,
-                    lastName,
-                    businessName,
-                    displayPicture,
-                    businessAddress,
-                    isBusinessAdmin: true,
-                    isce_permissions: {
-                        create: {
-                            connect: true,
-                            connect_plus: true,
-                            store: true,
-                            wallet: true,
-                            event: true,
-                            access: false
+                    case UserType.BUSINESS_USER:
+                        const { businessName, identificationType } = data as RegisterDto;
+                        if (!businessName || !identificationType) {
+                            throw new BadRequestException('Business users must provide business name and identification type')
                         }
-                    },
-                    business_permissions: {
-                        create: {
-                            invoicing: true,
-                            appointment: true,
-                            chat: true,
-                            analytics: true,
-                            services: true
-                        }
-                    }
-                });
-                break;
+                        Object.assign(userData, {
+                            businessName,
+                            businessAddress,
+                            displayPicture,
+                            identificationType,
+                            isBusinessAdmin: true,
+                            isce_permissions: {
+                                create: {
+                                    connect: true,
+                                    connect_plus: true,
+                                    store: true,
+                                    wallet: true,
+                                    event: true,
+                                    access: false
+                                }
+                            },
+                            business_permissions: {
+                                create: {
+                                    invoicing: true,
+                                    appointment: true,
+                                    chat: true,
+                                    analytics: true,
+                                    services: true
+                                }
+                            }
+                        });
+                    break;
 
-            case UserType.EMPLOYEE:
-                Object.assign(userData, {
-                    firstName,
-                    lastName,
-                    position,
-                    address,
-                    dob: dob ? new Date(dob) : null,
-                    isce_permissions: {
-                        create: {
-                            connect: true,
-                            connect_plus: false,
-                            store: false,
-                            wallet: true,
-                            event: false,
-                            access: false
-                        }
-                    },
-                    business_permissions: {
-                        create: {
-                            invoicing: false,
-                            appointment: true,
-                            chat: true,
-                            analytics: false,
-                            services: true
-                        }
-                    }
-                });
-                break;
+                    case UserType.SUPER_ADMIN:
+                        Object.assign(userData, {
+                            firstName: 'Super',
+                            lastName: 'Admin',
+                            idNumber: 'SUPER_ADMIN_ID',
+                            isce_permissions: {
+                                create: {
+                                    connect: true,
+                                    connect_plus: true,
+                                    store: true,
+                                    wallet: true,
+                                    event: true,
+                                    access: true
+                                }
+                            }
+                        });
+                    break;
 
-            case UserType.ADMIN:
-                Object.assign(userData, {
-                    firstName,
-                    lastName,
-                    address,
-                    dob: dob ? new Date(dob) : null,
-                    isce_permissions: {
-                        create: {
-                            connect: true,
-                            connect_plus: true,
-                            store: true,
-                            wallet: true,
-                            event: true,
-                            access: true
-                        }
-                    }
-                });
-                break;
+                    case UserType.EMPLOYEE:
+                        Object.assign(userData, {
+                            isce_permissions: {
+                                create: {
+                                    connect: true,
+                                    connect_plus: false,
+                                    store: false,
+                                    wallet: true,
+                                    event: false,
+                                    access: false
+                                }
+                            },
+                            business_permissions: {
+                                create: {
+                                    invoicing: false,
+                                    appointment: true,
+                                    chat: true,
+                                    analytics: false,
+                                    services: true
+                                }
+                            }
+                        });
+                    break;
 
-            case UserType.SUPER_ADMIN:
-                Object.assign(userData, {
-                    firstName: 'Super',
-                    lastName: 'Admin',
-                    idNumber: 'SUPER_ADMIN_ID',
-                    isce_permissions: {
-                        create: {
-                            connect: true,
-                            connect_plus: true,
-                            store: true,
-                            wallet: true,
-                            event: true,
-                            access: true
-                        }
-                    }
-                });
-                break;
-        }
-
-        // Convert DOB to UTC
-        if (userData.dob) {
-            const parsedDob = new Date(userData.dob);
-            if (isNaN(parsedDob.getTime())) {
-                throw new Error('Invalid date format for dob');
+                    case UserType.ADMIN:
+                        Object.assign(userData, {
+                            isce_permissions: {
+                                create: {
+                                    connect: true,
+                                    connect_plus: true,
+                                    store: true,
+                                    wallet: true,
+                                    event: true,
+                                    access: true
+                                }
+                            }
+                        });
+                    break;
             }
-            userData.dob = new Date(Date.UTC(
-                parsedDob.getFullYear(), 
-                parsedDob.getMonth(), 
-                parsedDob.getDate()
-            ));
-        }
 
-        // Create user with permissions
-        const createdUser = await this.databaseService.user.create({
-            data: userData,
-            include: {
-                isce_permissions: true,
-                business_permissions: true
-            }
-        });
+            // let utcDob: Date | null = null;
+            // if (dob) {
+            //     const parsedDob = new Date(dob);
+            //     if (isNaN(parsedDob.getTime())) {
+            //         throw new Error('Invalid date format for dob');
+            //     }
+            //     utcDob = new Date(Date.UTC(
+            //         parsedDob.getFullYear(), 
+            //         parsedDob.getMonth(), 
+            //         parsedDob.getDate()
+            //     ));
+            // }
 
-        const accessToken = await this.signToken(createdUser);
+            // userData.dob = utcDob;
 
-        return {
-            status: HttpStatus.CREATED,
-            message: `${userType} created successfully`,
-            data: {
-                accessToken,
-                email: createdUser.email,
-                userType: createdUser.userType,
-                permissions: {
-                    isce: createdUser.isce_permissions,
-                    business: createdUser.business_permissions
+            // Create user
+            const createdUser = await this.databaseService.user.create({ 
+                data: userData,
+                include: {
+                    isce_permissions: true,
+                    business_permissions: true
                 }
-            }
-        };
-    } catch (error) {
-        throw new HttpException(
-            error.message || 'Invalid token or request', 
-            HttpStatus.BAD_REQUEST
-        );    
-    }
+             });
+
+            const accessToken = await this.signToken(createdUser);
+
+            // Transform user to DTO
+            // const userDto = transformToUserDto(createdUser);
+            
+            return {
+                status: HttpStatus.CREATED,
+                message: `${userType} created successfully`,
+                data: {
+                    accessToken,
+                    email: createdUser.email,
+                    userType: createdUser.userType,
+                    permissions: {
+                        isce: createdUser.isce_permissions,
+                        business: createdUser.business_permissions
+                    }
+                }
+            };
+        } catch (error) {
+            throw new HttpException(
+                error.message || 'Invalid token or request', 
+                HttpStatus.BAD_REQUEST
+            );    
+        }
+
 }
 
     async signin(dto: LoginDto, req: Request, res: Response) {
@@ -478,13 +493,15 @@ export class AuthService {
             const { email, password } = dto;
             const formattedEmail = email.toLowerCase();
 
-            const foundUser = await this.databaseService.user.findUnique({ 
-                where: { email: formattedEmail },
-                include: {
+            const foundUser = await this.databaseService.user.findUnique({
+                 where: { 
+                    email: formattedEmail
+                 },
+                 include: {
                     isce_permissions: true,
                     business_permissions: true
-                  }
-            });
+                 }
+             });
 
             if (!foundUser) {
                 throw new BadRequestException('Email does not exists');
@@ -516,18 +533,18 @@ export class AuthService {
                 status: HttpStatus.OK,
                 message: 'Signed in successfully',
                 data: {
-                  accessToken,
-                  email: foundUser.email,
-                  userType: foundUser.userType,
-                  permissions: {
-                    isce: foundUser.isce_permissions,
-                    business: foundUser.business_permissions
-                  }
-              }
-            });   
+                    accessToken,
+                    email: foundUser.email,
+                    userType: foundUser.userType,
+                    permissions: {
+                        isce: foundUser.isce_permissions,
+                        business: foundUser.business_permissions
+                    }
+                }
+            });
         } catch (error) {
             throw new HttpException(
-                error.message || 'Invalid token or request', 
+                error.message || 'Invalid credentials',
                 HttpStatus.BAD_REQUEST
             );
         }
@@ -810,8 +827,15 @@ export class AuthService {
     }
 
     async signToken(user: User) {
-        const payload = user;
-
-        return this.jwt.signAsync(payload, { secret: process.env.JWT_SECRET });
+        const payload = {
+            sub: user.id,
+            email: user.email,
+            userType: user.userType
+        };
+    
+        return this.jwt.signAsync(payload, { 
+            secret: process.env.JWT_SECRET,
+            expiresIn: '24h' // Add expiration time
+        });
     }
 }
