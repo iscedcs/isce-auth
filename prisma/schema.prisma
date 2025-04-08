@@ -8,67 +8,105 @@ datasource db {
 }
 
 model User {
-  id                          String   @id @default(uuid())
-  firstName                   String?
-  lastName                    String?
-  email                       String   @unique
-  phone                       String   @unique
-  password                    String
-  businessName                String?
-  displayPicture              String?
-  businessAddress             String?
-  isEmailVerified             Boolean @default(false)
-  identificationType          IdentificationType
-  idNumber                    String?            @unique
-  address                     String?
-  dob                         DateTime?
-  isBlocked                   Boolean   @default(false)
-  userType                    UserType           @default(USER)
-  passwordReset               PasswordReset?
-  associatedBusinessId        String?
-  position                    String?
-  isBusinessAdmin             Boolean  @default(false)
-  invitedByUserId             String?
-  deviceId                    String?
-  lastLogin                   DateTime?
-  createdAt                   DateTime @default(now())
-  updatedAt                   DateTime @updatedAt
-  deletedAt                   DateTime?
-  devices                     Device[]
+  id                   String             @id @default(uuid())
+  email                String             @unique
+  displayPicture       String?
+  identificationType   IdentificationType
+  idNumber             String?            @unique
+  password             String
+  phone                String             @unique
+  address              String?
+  dob                  DateTime?
+  isce_permissions     IscePermissions?    @relation("UserIscePermissions")
+  business_permissions BusinessPermissions? @relation("UserBusinessPermissions")
+  userType             UserType           @default(USER)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  deletedAt            DateTime?
+  associatedBusinessId String?
+  businessAddress      String?
+  businessName         String?
+  deviceId             String?
+  firstName            String?
+  invitedByUserId      String?
+  isBusinessAdmin      Boolean            @default(false)
+  lastLogin            DateTime?
+  lastName             String?
+  position             String?
+  isBlocked            Boolean            @default(false)
+  isEmailVerified      Boolean            @default(false)
+  devices              Device[]
+  passwordReset        PasswordReset?
 }
 
 model EmailVerify {
-  id                          String   @id @default(uuid())
-  email                       String   @unique
-  verifyCode                  String
-  userType                    UserType?
-  isVerified                  Boolean  @default(false)
-  expiresAt                   DateTime
-  createdAt                   DateTime @default(now())
-  updatedAt                   DateTime @updatedAt
+  id         String    @id @default(uuid())
+  email      String    @unique
+  verifyCode String
+  isVerified Boolean   @default(false)
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  userType   UserType?
 }
 
 model PasswordReset {
-  id                          String   @id @default(uuid())
-  userId                      String   @unique
-  resetCode                   String
-  expiresAt                   DateTime
-  createdAt                   DateTime @default(now())
-  updatedAt                   DateTime @updatedAt
-  user                        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  resetCode String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Device {
-  id                         String   @id @default(uuid())
-  userId                     String
-  type                       DeviceType
-  nfcUid                     String   @unique
-  label                      String?
-  isActive                   Boolean  @default(true)
-  isPrimary                  Boolean  @default(false)
-  assignedAt                 DateTime
-  lastUsedAt                 DateTime?
-  user                       User @relation(fields: [userId], references: [id])
+  id         String     @id @default(uuid())
+  userId     String
+  type       DeviceType
+  nfcUid     String     @unique
+  label      String?
+  isActive   Boolean    @default(true)
+  isPrimary  Boolean    @default(false)
+  assignedAt DateTime
+  lastUsedAt DateTime?
+  user       User       @relation(fields: [userId], references: [id])
+}
+
+model IscePermissions {
+  id           String   @id @default(uuid())
+  connect      Boolean  @default(false)
+  connect_plus Boolean  @default(false)
+  store        Boolean  @default(false)
+  wallet       Boolean  @default(false)
+  event        Boolean  @default(false)
+  access       Boolean  @default(false)
+  user         User     @relation("UserIscePermissions", fields: [userId], references: [id], onDelete: Cascade)
+  userId       String   @unique
+}
+
+model BusinessPermissions {
+  id           String   @id @default(uuid())
+  invoicing    Boolean  @default(false)
+  appointment  Boolean  @default(false)
+  chat         Boolean  @default(false)
+  analytics    Boolean  @default(false)
+  services     Boolean  @default(false)
+  user         User     @relation("UserBusinessPermissions", fields: [userId], references: [id], onDelete: Cascade)
+  userId       String   @unique
+}
+
+model Address {
+  id          String @id @default(uuid())
+  addressText String
+  latitude    Float
+  longitude   Float
+}
+
+model ContactInfo {
+  id    String  @id @default(uuid())
+  phone String?
+  email String?
 }
 
 enum DeviceType {
@@ -84,25 +122,11 @@ enum PrivacyLevel {
   FRIENDS_ONLY
 }
 
-model Address {
-  id          String   @id @default(uuid())
-  addressText String
-  latitude    Float
-  longitude   Float
-}
-
-model ContactInfo {
-  id      String   @id @default(uuid())
-  phone   String?
-  email   String?
-}
-
-
 enum UserType {
-  ADMIN
   USER
-  SUPER_ADMIN
   BUSINESS_USER
+  ADMIN
+  SUPER_ADMIN
   EMPLOYEE
 }
 
