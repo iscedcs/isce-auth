@@ -51,6 +51,11 @@ export class RegisterDto {
   @IsString()
   businessName?: string;
 
+  @ApiPropertyOptional({ description: 'Business email (only for business users)', example: 'business@example.com' })
+  @IsOptional()
+  @IsEmail()
+  businessEmail?: string;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()

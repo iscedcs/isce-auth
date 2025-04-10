@@ -24,6 +24,7 @@ model User {
   associatedBusinessId String?
   businessAddress      String?
   businessName         String?
+  businessEmail        String?
   deviceId             String?
   firstName            String?
   invitedByUserId      String?

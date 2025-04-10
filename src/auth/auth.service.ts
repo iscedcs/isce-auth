@@ -268,7 +268,7 @@ export class AuthService {
         try {
             const { 
                 email, phone, password, confirmpassword, displayPicture,
-                businessAddress, 
+                businessAddress, businessEmail, businessName, identificationType
                 } = data as RegisterDto;
 
             const formattedEmail = email.toLowerCase();
@@ -321,6 +321,14 @@ export class AuthService {
             isEmailVerified: userType === UserType.ADMIN
         };
 
+         // Add businessEmail for BUSINESS_USER
+         if (userType === UserType.BUSINESS_USER) {
+            if (!businessEmail) {
+                throw new BadRequestException('Business users must provide a business email');
+            }
+            userData.businessEmail = businessEmail;
+        }
+
         // Add identificationType only for BUSINESS_USER
         // if (userType === UserType.BUSINESS_USER) {
         //     if (!identificationType) {
@@ -347,14 +355,15 @@ export class AuthService {
                     break;
 
                     case UserType.BUSINESS_USER:
-                        const { businessName, identificationType } = data as RegisterDto;
-                        if (!businessName || !identificationType) {
+                        const { businessName, identificationType, businessEmail } = data as RegisterDto;
+                        if (!businessName || !identificationType || !businessEmail) {
                             throw new BadRequestException('Business users must provide business name and identification type')
                         }
                         Object.assign(userData, {
                             businessName,
                             businessAddress,
                             displayPicture,
+                            businessEmail,
                             identificationType,
                             isBusinessAdmin: true,
                             isce_permissions: {
@@ -467,12 +476,14 @@ export class AuthService {
             // const userDto = transformToUserDto(createdUser);
             
             return {
+                success: true,
                 status: HttpStatus.CREATED,
                 message: `${userType} created successfully`,
                 data: {
                     accessToken,
                     email: createdUser.email,
                     userType: createdUser.userType,
+                    businessEmail: createdUser.businessEmail || null,
                     permissions: {
                         isce: createdUser.isce_permissions,
                         business: createdUser.business_permissions
@@ -529,6 +540,7 @@ export class AuthService {
             res.cookie('token', accessToken);
 
             return res.json({
+                success: true,
                 status: HttpStatus.OK,
                 message: 'Signed in successfully',
                 data: {
