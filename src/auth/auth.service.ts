@@ -269,7 +269,7 @@ export class AuthService {
             const { 
                 email, phone, password, confirmpassword, displayPicture,
                 businessAddress, businessEmail,  businessName, identificationType,
-                position, firstName, lastName, idNumber
+                position, firstName, lastName, idNumber, address, dob
                 } = data as RegisterDto;
 
             const formattedEmail = email.toLowerCase();
@@ -358,15 +358,17 @@ export class AuthService {
                     case UserType.BUSINESS_USER:
                         const { 
                             businessName, identificationType, businessEmail, position,
-                            firstName, lastName, idNumber,
+                            firstName, lastName, idNumber, dob, address,
                             businessAddress, displayPicture
                         } = data as RegisterDto;
-                        if (!businessName || !identificationType ) {
+                        if (!businessName || !identificationType || businessEmail) {
                             throw new BadRequestException('Business users must provide business name and identification type')
                         }
                         Object.assign(userData, {
                             firstName,
                             lastName,
+                            address,
+                            dob,
                             idNumber,
                             businessName,
                             businessAddress,
@@ -455,20 +457,20 @@ export class AuthService {
                     break;
             }
 
-            // let utcDob: Date | null = null;
-            // if (dob) {
-            //     const parsedDob = new Date(dob);
-            //     if (isNaN(parsedDob.getTime())) {
-            //         throw new Error('Invalid date format for dob');
-            //     }
-            //     utcDob = new Date(Date.UTC(
-            //         parsedDob.getFullYear(), 
-            //         parsedDob.getMonth(), 
-            //         parsedDob.getDate()
-            //     ));
-            // }
+            let utcDob: Date | null = null;
+            if (dob) {
+                const parsedDob = new Date(dob);
+                if (isNaN(parsedDob.getTime())) {
+                    throw new Error('Invalid date format for dob');
+                }
+                utcDob = new Date(Date.UTC(
+                    parsedDob.getFullYear(), 
+                    parsedDob.getMonth(), 
+                    parsedDob.getDate()
+                ));
+            }
 
-            // userData.dob = utcDob;
+            userData.dob = utcDob;
 
             // Create user
             const createdUser = await this.databaseService.user.create({ 

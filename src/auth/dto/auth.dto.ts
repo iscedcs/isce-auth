@@ -86,14 +86,14 @@ export class RegisterDto {
   @IsEnum(IdentificationType)
   identificationType?: IdentificationType;
 
-  // @ApiProperty({ description: 'User date of birth', example: 'mm/dd/yyyy' })
-  // @IsNotEmpty()
-  // dob?: Date;
+  @ApiProperty({ description: 'User date of birth', example: 'mm/dd/yyyy' })
+  @IsNotEmpty()
+  dob?: Date;
 
-  // @ApiProperty({ description: 'User address', example: '123 Main St' })
-  // @IsNotEmpty()
-  // @IsString()
-  // address: string;
+  @ApiProperty({ description: 'User address', example: '123 Main St' })
+  @IsNotEmpty()
+  @IsString()
+  address?: string;
 
   @ApiProperty({ description: 'User password', example: 'password123' })
   @IsNotEmpty()
