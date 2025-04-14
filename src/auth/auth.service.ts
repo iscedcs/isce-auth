@@ -268,7 +268,8 @@ export class AuthService {
         try {
             const { 
                 email, phone, password, confirmpassword, displayPicture,
-                businessAddress, businessEmail, businessName, identificationType
+                businessAddress, businessEmail,  businessName, identificationType,
+                position, firstName, lastName, idNumber
                 } = data as RegisterDto;
 
             const formattedEmail = email.toLowerCase();
@@ -355,15 +356,23 @@ export class AuthService {
                     break;
 
                     case UserType.BUSINESS_USER:
-                        const { businessName, identificationType, businessEmail } = data as RegisterDto;
-                        if (!businessName || !identificationType || !businessEmail) {
+                        const { 
+                            businessName, identificationType, businessEmail, position,
+                            firstName, lastName, idNumber,
+                            businessAddress, displayPicture
+                        } = data as RegisterDto;
+                        if (!businessName || !identificationType ) {
                             throw new BadRequestException('Business users must provide business name and identification type')
                         }
                         Object.assign(userData, {
+                            firstName,
+                            lastName,
+                            idNumber,
                             businessName,
                             businessAddress,
                             displayPicture,
                             businessEmail,
+                            position,
                             identificationType,
                             isBusinessAdmin: true,
                             isce_permissions: {
