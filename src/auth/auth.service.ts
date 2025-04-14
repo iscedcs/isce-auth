@@ -361,8 +361,8 @@ export class AuthService {
                             firstName, lastName, idNumber, dob, address,
                             businessAddress, displayPicture
                         } = data as RegisterDto;
-                        if (!businessName || !identificationType || businessEmail) {
-                            throw new BadRequestException('Business users must provide business name and identification type')
+                        if (!businessName || !identificationType || !businessEmail) {
+                            throw new BadRequestException("Business users must provide business name and identification type")
                         }
                         Object.assign(userData, {
                             firstName,

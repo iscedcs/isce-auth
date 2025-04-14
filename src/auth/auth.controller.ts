@@ -37,7 +37,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Sign up a new user' })
   @ApiResponse({ status: 201, description: 'User created successfully.'})
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  async signup(@Body() dto: RegisterDto, @Query('userType') userType: UserType) {  
+  async signup(@Body(ValidationPipe) dto: RegisterDto, @Query('userType') userType: UserType) {  
     return this.authService.signup(dto, userType || UserType.USER);
   }
 
