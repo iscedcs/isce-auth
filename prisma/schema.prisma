@@ -8,60 +8,59 @@ datasource db {
 }
 
 model User {
-  id                   String             @id @default(uuid())
-  email                String             @unique
+  id                   String               @id @default(uuid())
+  email                String               @unique
   displayPicture       String?
   identificationType   IdentificationType?
-  idNumber             String?            @unique
+  idNumber             String?              @unique
   password             String
-  phone                String             @unique
+  phone                String               @unique
   address              String?
   dob                  DateTime?
-  userType             UserType           @default(USER)
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
+  userType             UserType             @default(USER)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
   deletedAt            DateTime?
   associatedBusinessId String?
   businessAddress      String?
   businessName         String?
-  businessEmail        String?
   deviceId             String?
   firstName            String?
   invitedByUserId      String?
-  isce_permissions     IscePermissions?
-  business_permissions BusinessPermissions?
-  isBusinessAdmin      Boolean            @default(false)
+  isBusinessAdmin      Boolean              @default(false)
   lastLogin            DateTime?
   lastName             String?
   position             String?
-  isBlocked            Boolean            @default(false)
-  isEmailVerified      Boolean            @default(false)
+  isBlocked            Boolean              @default(false)
+  isEmailVerified      Boolean              @default(false)
+  businessEmail        String?
+  business_permissions BusinessPermissions?
   devices              Device[]
+  isce_permissions     IscePermissions?
   passwordReset        PasswordReset?
 }
 
 model IscePermissions {
-  id            String   @id @default(uuid())
-  connect       Boolean  @default(false)
-  connect_plus  Boolean  @default(false)
-  store         Boolean  @default(false)
-  wallet        Boolean  @default(false)
-  event         Boolean  @default(false)
-  access        Boolean  @default(false)
-  user          User     @relation(fields: [userId], references: [id])
-  userId        String   @unique
+  id           String  @id @default(uuid())
+  connect      Boolean @default(false)
+  connect_plus Boolean @default(false)
+  store        Boolean @default(false)
+  wallet       Boolean @default(false)
+  event        Boolean @default(false)
+  access       Boolean @default(false)
+  userId       String  @unique
+  user         User    @relation(fields: [userId], references: [id])
 }
 
-// Change from type to model
 model BusinessPermissions {
-  id           String   @id @default(uuid())
-  invoicing    Boolean  @default(false)
-  appointment  Boolean  @default(false)
-  chat         Boolean  @default(false)
-  analytics    Boolean  @default(false)
-  services     Boolean  @default(false)
-  user         User     @relation(fields: [userId], references: [id])
-  userId       String   @unique
+  id          String  @id @default(uuid())
+  invoicing   Boolean @default(false)
+  appointment Boolean @default(false)
+  chat        Boolean @default(false)
+  analytics   Boolean @default(false)
+  services    Boolean @default(false)
+  userId      String  @unique
+  user        User    @relation(fields: [userId], references: [id])
 }
 
 model EmailVerify {

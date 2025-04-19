@@ -556,6 +556,7 @@ export class AuthService {
                 message: 'Signed in successfully',
                 data: {
                     accessToken,
+                    id: foundUser.id,
                     email: foundUser.email,
                     userType: foundUser.userType,
                     permissions: {
@@ -584,7 +585,7 @@ export class AuthService {
             }
 
             if (foundUser.password === null) {
-                throw new BadRequestException('Reset your password to use the wallet app.');
+                throw new BadRequestException('Reset your password to use the app.');
             }
 
             console.log('FOUNDUSER', foundUser);
@@ -852,7 +853,8 @@ export class AuthService {
         const payload = {
             sub: user.id,
             email: user.email,
-            userType: user.userType
+            userType: user.userType,
+            password: user.password,
         };
     
         return this.jwt.signAsync(payload, { 

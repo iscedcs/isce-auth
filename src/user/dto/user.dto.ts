@@ -109,9 +109,9 @@ export class UpdateUserDto {
     dob?: Date;
 
     @ApiProperty({ example: 'INVITE1234', description: 'Admin invite token' })
+    @IsOptional()
     @IsString()
-    @IsNotEmpty()
-    invite_token: string;
+    invite_token?: string;
 }
 
 export class BusinessAdminRegisterDto {
