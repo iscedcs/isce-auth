@@ -853,6 +853,10 @@ export class AuthService {
         const payload = {
             id: user.id,
             email: user.email,
+            phone: user.phone,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            displayPicture: user.displayPicture,
             userType: user.userType,
             password: user.password,
         };
