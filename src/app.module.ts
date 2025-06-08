@@ -5,6 +5,7 @@ import { DatabaseModule } from './database/database.module';
 // import { BusinessUserModule } from './business_user/business_user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { DeviceModule } from './device/device.module';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { JwtModule } from '@nestjs/jwt';
     }),
     UserModule, 
     AuthModule, 
-    DatabaseModule,
+    DatabaseModule, DeviceModule,
     // BusinessUserModule
   ],
   controllers: [],

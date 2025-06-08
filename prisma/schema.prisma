@@ -85,16 +85,16 @@ model PasswordReset {
 }
 
 model Device {
-  id         String     @id @default(uuid())
+  id         String    @id @default(uuid())
   userId     String
-  type       DeviceType
-  nfcUid     String     @unique
+  type       String
+  productId  String    @unique // Formerly nfcUid
   label      String?
-  isActive   Boolean    @default(true)
-  isPrimary  Boolean    @default(false)
+  isActive   Boolean?  @default(true)
+  isPrimary  Boolean?  @default(false)
   assignedAt DateTime
   lastUsedAt DateTime?
-  user       User       @relation(fields: [userId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
 }
 
 model Address {
@@ -108,13 +108,6 @@ model ContactInfo {
   id    String  @id @default(uuid())
   phone String?
   email String?
-}
-
-enum DeviceType {
-  CARD
-  STICKER
-  WRISTBAND
-  QR
 }
 
 enum PrivacyLevel {
