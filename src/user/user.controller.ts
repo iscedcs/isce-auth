@@ -16,7 +16,7 @@ export class UserController {
     @Post('createAdmin')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserType.ADMIN)
-    @ApiBearerAuth('JWT-auth') 
+    @ApiBearerAuth('access-token') 
     @ApiOperation({ summary: 'Create a new user' })
     @ApiResponse({ status: 201, description: 'User created successfully.' })
     @ApiResponse({ status: 400, description: 'Bad Request.' })
@@ -29,6 +29,9 @@ export class UserController {
     }
 
     @Get('allUsers')
+    @UseGuards(JwtAuthGuard)
+    // @Roles(UserType.ADMIN)
+    @ApiBearerAuth('access-token')
     @ApiOperation({ summary: 'Get all users' })
     @ApiResponse({ status: 201, description: 'User fetched successfully.' })
     @ApiResponse({ status: 400, description: 'Bad Request.' })
@@ -62,6 +65,9 @@ export class UserController {
     }
 
     @Get('one/:id')
+    @UseGuards(JwtAuthGuard)
+    // @Roles(UserType.ADMIN)
+    @ApiBearerAuth('access-token')
     @ApiOperation({ summary: 'Get a single user' })
     @ApiResponse({ status: 201, description: 'User fetched successfully.' })
     @ApiResponse({ status: 400, description: 'Bad Request.' })
@@ -70,6 +76,9 @@ export class UserController {
     }
 
     @Patch('update/:id')
+    @UseGuards(JwtAuthGuard)
+    // @Roles(UserType.ADMIN)
+    @ApiBearerAuth('access-token')
     @ApiOperation({ summary: 'Update a user' })
     @ApiResponse({ status: 201, description: 'User updated successfully.' })
     @ApiResponse({ status: 400, description: 'Bad Request.' })
@@ -81,6 +90,9 @@ export class UserController {
     }
 
     @Patch('delete/:id')
+    @UseGuards(JwtAuthGuard)
+    // @Roles(UserType.ADMIN)
+    @ApiBearerAuth('access-token')
     @ApiOperation({ summary: 'Soft delete a user' })
     @ApiResponse({ status: 201, description: 'User deleted successfully.' })
     @ApiResponse({ status: 400, description: 'Bad Request.' })
@@ -90,6 +102,9 @@ export class UserController {
     }
 
     @Patch('delete/users')
+    @UseGuards(JwtAuthGuard)
+    // @Roles(UserType.ADMIN)
+    @ApiBearerAuth('access-token')
     @ApiOperation({ summary: 'Soft delete batch of users' })
     @ApiResponse({ status: 201, description: 'Users deleted successfully.' })
     @ApiResponse({ status: 400, description: 'Bad Request.' })
@@ -99,6 +114,9 @@ export class UserController {
     }
 
     @Get('/users/search')
+    @UseGuards(JwtAuthGuard)
+    // @Roles(UserType.ADMIN)
+    @ApiBearerAuth('access-token')
     @ApiOperation({ summary: 'Search users' })
     @ApiResponse({ status: 201, description: 'User fetched successfully.' })
     @ApiResponse({ status: 400, description: 'Bad Request.' })
@@ -143,6 +161,9 @@ export class UserController {
     }
 
     @Get('/users/count')
+    @UseGuards(JwtAuthGuard)
+    // @Roles(UserType.ADMIN)
+    @ApiBearerAuth('access-token')
     @ApiOperation({ summary: 'Get total count of users' })
     @ApiResponse({ status: 201, description: 'Users counted successfully.' })
     @ApiResponse({ status: 400, description: 'Bad Request.' })
@@ -151,6 +172,9 @@ export class UserController {
     }
 
     @Get('/users/active')
+    @UseGuards(JwtAuthGuard)
+    // @Roles(UserType.ADMIN)
+    @ApiBearerAuth('access-token')
     @ApiOperation({ summary: 'Get total active users' })
     @ApiResponse({ status: 201, description: 'Users fetched successfully.' })
     @ApiResponse({ status: 400, description: 'Bad Request.' })
