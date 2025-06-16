@@ -15,7 +15,7 @@ export class UserController {
 
     @Post('createAdmin')
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles(UserType.ADMIN)
+    @Roles(UserType.SUPER_ADMIN)
     @ApiBearerAuth('access-token') 
     @ApiOperation({ summary: 'Create a new user' })
     @ApiResponse({ status: 201, description: 'User created successfully.' })
