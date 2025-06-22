@@ -76,9 +76,9 @@ export class UserController {
     }
 
     @Patch('update/:id')
-    @UseGuards(JwtAuthGuard)
+    // @UseGuards(JwtAuthGuard)
     // @Roles(UserType.ADMIN)
-    @ApiBearerAuth('access-token')
+    // @ApiBearerAuth('access-token')
     @ApiOperation({ summary: 'Update a user' })
     @ApiResponse({ status: 201, description: 'User updated successfully.' })
     @ApiResponse({ status: 400, description: 'Bad Request.' })
