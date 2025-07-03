@@ -317,6 +317,10 @@ export class AuthService {
         let userData: any = {
             email: formattedEmail,
             phone,
+            firstName: firstName || null,
+            lastName: lastName || null,
+            displayPicture: displayPicture || null,
+            address: address || null,
             password: hashedPassword,
             userType,
             isEmailVerified: userType === UserType.ADMIN
@@ -419,6 +423,14 @@ export class AuthService {
 
                     case UserType.EMPLOYEE:
                         Object.assign(userData, {
+                            firstName: firstName || null,
+                            lastName: lastName || null,
+                            idNumber: idNumber || null,
+                            address: address || null,
+                            dob: dob || null,
+                            position: position || null,
+                            identificationType: identificationType || IdentificationType.NIN,
+                            displayPicture: displayPicture || null,
                             isce_permissions: {
                                 create: {
                                     connect: true,
@@ -443,6 +455,12 @@ export class AuthService {
 
                     case UserType.ADMIN:
                         Object.assign(userData, {
+                            firstName: firstName || null,
+                            lastName: lastName || null,
+                            idNumber: idNumber || null,
+                            address: address || null,
+                            dob: dob || null,
+                            displayPicture: displayPicture || null,
                             isce_permissions: {
                                 create: {
                                     connect: true,
@@ -485,6 +503,8 @@ export class AuthService {
 
             // Transform user to DTO
             // const userDto = transformToUserDto(createdUser);
+
+            const name = `${createdUser.firstName || ''} ${createdUser.lastName || ''}`.trim() || 'User';
             
             return {
                 success: true,
@@ -495,6 +515,8 @@ export class AuthService {
                     email: createdUser.email,
                     userType: createdUser.userType,
                     businessEmail: createdUser.businessEmail || null,
+                    username: name,
+                    displayPicture: createdUser.displayPicture || null,
                     permissions: {
                         isce: createdUser.isce_permissions,
                         business: createdUser.business_permissions
@@ -550,6 +572,8 @@ export class AuthService {
 
             res.cookie('token', accessToken);
 
+            const name = `${foundUser.firstName || ''} ${foundUser.lastName || ''}`.trim() || 'User';
+
             return res.json({
                 success: true,
                 status: HttpStatus.OK,
@@ -559,6 +583,8 @@ export class AuthService {
                     id: foundUser.id,
                     email: foundUser.email,
                     userType: foundUser.userType,
+                    username: name,
+                    displayPicture: foundUser.displayPicture || null,
                     permissions: {
                         isce: foundUser.isce_permissions,
                         business: foundUser.business_permissions

@@ -60,7 +60,7 @@ export class UserController {
     ) {
 
       const parsedLimit = limit ? parseInt(limit, 10) : 10;
-      const parsedOffset = offset ? parseInt(offset, 10) : 0;
+      const parsedOffset = offset ? parseInt(offset, 0) : 0;
         return this.userService.getAllUsers({ userType, limit: parsedLimit, offset: parsedOffset });
     }
 
