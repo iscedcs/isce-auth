@@ -126,7 +126,7 @@ export class UserService {
     async updateUser(id: string, updateUserDto: UpdateUserDto) {
       try {
 
-          const { dob, email, firstName, lastName, phone } = updateUserDto;
+          const { dob, email, firstName, lastName, phone, address } = updateUserDto;
           let formattedDob: string;
           let utcDob: Date;
           let formattedEmail: string;
@@ -164,7 +164,7 @@ export class UserService {
           
           const updatedUser = await this.databaseService.user.update({
             where: { id, deletedAt: null },
-            data: { firstName: firstName, lastName: lastName, phone: phone, dob: utcDob, email: formattedEmail},
+            data: { firstName: firstName, lastName: lastName, phone: phone, dob: utcDob, email: formattedEmail, address: address },
           });
 
           // Transform user to DTO for the response
