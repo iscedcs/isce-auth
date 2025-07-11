@@ -125,60 +125,61 @@ export class UserService {
 
     async updateUser(id: string, updateUserDto: UpdateUserDto) {
       try {
+        const { dob, email, firstName, lastName, phone, address } = updateUserDto;
 
-          const { dob, email, firstName, lastName, phone, address } = updateUserDto;
-          let formattedDob: string;
-          let utcDob: Date;
-          let formattedEmail: string;
+        let utcDob: Date | undefined;
+        let formattedEmail: string | undefined;
 
-          
-          const existingUser = await this.databaseService.user.findUnique({
-            where: { id, deletedAt: null },
-          });
-    
-          if (!existingUser) {
-            throw new NotFoundException(`User with ID ${id} not found`);
-          }
+        const existingUser = await this.databaseService.user.findUnique({
+          where: { id, deletedAt: null },
+        });
 
-          if (email) {
-            formattedEmail = email.toLowerCase();
-          }
-
-          if(dob) {
-            if (dob instanceof Date) {
-              // If already a Date object, format it
-              formattedDob = dob.toISOString().split('T')[0];
-            } else {
-              // If dob is a string, parse it to a Date
-              const parsedDob = new Date(dob);
-  
-              // if (isNaN(parsedDob.getTime())) {
-              //   throw new Error('Invalid date format for dob');
-              // }
-  
-              utcDob = new Date(Date.UTC(parsedDob.getFullYear(), parsedDob.getMonth(), parsedDob.getDate()));
-  
-              console.log('utcDob', utcDob);
-            }
-          }
-          
-          const updatedUser = await this.databaseService.user.update({
-            where: { id, deletedAt: null },
-            data: { firstName: firstName, lastName: lastName, phone: phone, dob: utcDob, email: formattedEmail, address: address },
-          });
-
-          // Transform user to DTO for the response
-         const userDto = transformToUserDto(updateUserDto);
-  
-          return {
-            success: true,
-            message: "User updated successfully",
-            data: userDto,
+        if (!existingUser) {
+          throw new NotFoundException(`User with ID ${id} not found`);
         }
+
+        if (email) {
+          formattedEmail = email.toLowerCase();
+        }
+
+        if (dob) {
+          const parsedDob = new Date(dob);
+          if (isNaN(parsedDob.getTime())) {
+            throw new BadRequestException('Invalid date format for dob');
+          }
+
+          // Normalize to UTC (zeroing time)
+          utcDob = new Date(Date.UTC(parsedDob.getFullYear(), parsedDob.getMonth(), parsedDob.getDate()));
+        }
+
+        const updatedUser = await this.databaseService.user.update({
+          where: { id, deletedAt: null },
+          data: {
+            firstName,
+            lastName,
+            phone,
+            dob: utcDob,
+            email: formattedEmail,
+            address,
+          },
+        });
+
+        const userDto = transformToUserDto(updatedUser); // pass the actual updated user data
+
+        return {
+          success: true,
+          message: 'User updated successfully',
+          data: userDto,
+        };
       } catch (error) {
-        throw new HttpException(error.message || 'Failed to update user, Internal server error', HttpStatus.INTERNAL_SERVER_ERROR); 
+        console.error('Error updating user:', error);
+        throw new HttpException(
+          error.message || 'Failed to update user, Internal server error',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
     }
+
 
     async softDeleteUser(id: string) {
       try {

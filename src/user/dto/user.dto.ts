@@ -1,6 +1,6 @@
 import { IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 import { UserType } from '@prisma/client';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class AdminRegisterDto {
   @ApiProperty({ description: 'User email address', example: 'user@example.com' })
@@ -112,6 +112,15 @@ export class UpdateUserDto {
     @IsOptional()
     @IsString()
     invite_token?: string;
+
+    @ApiPropertyOptional({
+      description: 'URL or path to the user’s display picture (optional)',
+      example: 'https://example.com/images/john.jpg',
+      required: false,
+    })
+    @IsOptional()
+    @IsString()
+    displayPicture?: string;
 }
 
 export class BusinessAdminRegisterDto {
