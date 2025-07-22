@@ -1,6 +1,6 @@
-import { BadRequestException, ForbiddenException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service'; 
-import { RegisterDto, ResetPasswordDto, transformToUserDto, UserDto } from './dto/auth.dto';
+import { CreateUserDto, RegisterDto, ResetPasswordDto, transformToUserDto, UserDto } from './dto/auth.dto';
 import { LoginDto } from './dto/auth.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -255,6 +255,64 @@ export class AuthService {
                 );
             }
         }
+
+
+
+        async signupUser(dto: CreateUserDto) {
+            try {
+            const { email, phone, password, firstName, lastName } = dto;
+
+            dto.email = dto.email.toLowerCase();
+
+            dto.firstName = dto.firstName.toUpperCase();
+            dto.lastName = dto.lastName.toUpperCase();
+
+            // 💥 Check for existing user
+            const existingUser = await this.databaseService.user.findFirst({
+                where: {
+                OR: [{ email }, { phone }],
+                },
+            });
+
+            if (existingUser) {
+                throw new ConflictException('User with provided email or phone already exists');
+            }
+
+            // 🔐 Hash password
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            // 🧑 Create user
+            const newUser = await this.databaseService.user.create({
+                data: {
+                email,
+                phone,
+                password: hashedPassword,
+                firstName,
+                lastName,
+                },
+                select: {
+                id: true,
+                email: true,
+                phone: true,
+                firstName: true,
+                lastName: true,
+                createdAt: true,
+                },
+            });
+
+            return {
+                success: true,
+                message: 'User signed up successfully',
+                data: newUser,
+            };
+            } catch (error) {
+            throw new HttpException(
+                error.message || 'Failed to sign up user',
+                error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+            }
+        }
+
 
     async signup(dto: RegisterDto, userType: UserType) {
       return this.createUserByType(dto, userType);
@@ -604,7 +662,13 @@ export class AuthService {
             const { email, password } = dto;
             const formattedEmail = email.toLowerCase();
 
-            const foundUser = await this.databaseService.user.findUnique({ where: { email: formattedEmail } });
+            const foundUser = await this.databaseService.user.findUnique({ 
+                where: { email: formattedEmail, deletedAt: null },
+                include: {
+                    isce_permissions: true,
+                    business_permissions: true
+                } 
+            });
 
             if (!foundUser) {
                 throw new BadRequestException('Email does not exists');

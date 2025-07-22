@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Query, Req, Res, UseGuards, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AdminVerifyEmailDto, EmailDto, RegisterDto, ResetPasswordDto, SendResetTokenDto, VerifyEmailDto } from './dto/auth.dto';
+import { AdminVerifyEmailDto, CreateUserDto, EmailDto, RegisterDto, ResetPasswordDto, SendResetTokenDto, VerifyEmailDto } from './dto/auth.dto';
 import { LoginDto } from './dto/auth.dto'; 
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
@@ -31,6 +31,30 @@ export class AuthController {
   verifyEmailCode(@Body(ValidationPipe) verifyEmailDto: VerifyEmailDto) {
     const { email, code } = verifyEmailDto;
     return this.authService.verifyEmailCode(email, code);
+  }
+
+  @Post('signupUser')
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiResponse({
+    status: 201,
+    description: 'User created successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'User signed up successfully',
+        data: {
+          id: 'uuid',
+          email: 'john.doe@example.com',
+          phone: '+2348012345678',
+          firstName: 'John',
+          lastName: 'Doe',
+          createdAt: '2025-07-16T10:00:00Z',
+        },
+      },
+    },
+  })
+  signupUser(@Body(ValidationPipe) dto: CreateUserDto) {
+    return this.authService.signupUser(dto);
   }
 
   @Post('/signup')

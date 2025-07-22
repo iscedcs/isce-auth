@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IdentificationType } from '@prisma/client';
 import { Expose, plainToClass } from 'class-transformer';
-import { IsDate, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength, ValidateNested } from 'class-validator';
+import { IsDate, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsPhoneNumber, IsString, MinLength, ValidateNested } from 'class-validator';
 import { BusinessPermissionsDto } from 'src/utils/common/business-permissions.dto';
 import { IscePermissionsDto } from 'src/utils/common/isce-permissions.dto';
 
@@ -12,6 +12,32 @@ export class EmailDto {
   email: string;
 }
 
+
+export class CreateUserDto {
+  @ApiProperty({ example: 'John' })
+  @IsNotEmpty()
+  @IsString()
+  firstName: string;
+
+  @ApiProperty({ example: 'Doe' })
+  @IsNotEmpty()
+  @IsString()
+  lastName: string;
+
+  @ApiProperty({ example: 'john.doe@example.com' })
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({ example: '+2348012345678' })
+  @IsNotEmpty()
+  @IsPhoneNumber('NG')
+  phone: string;
+
+  @ApiProperty({ example: 'StrongPassword123' })
+  @IsNotEmpty()
+  @MinLength(6)
+  password: string;
+}
 export class VerifyEmailDto {
   @ApiProperty({ description: 'User email', example: 'teddy@gmail.com' })
   @IsEmail()
