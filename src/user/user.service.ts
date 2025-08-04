@@ -125,7 +125,7 @@ export class UserService {
 
     async updateUser(id: string, updateUserDto: UpdateUserDto) {
       try {
-        const { dob, email, firstName, lastName, phone, address } = updateUserDto;
+        const { dob, firstName, lastName, phone, address, displayPicture } = updateUserDto;
 
         let utcDob: Date | undefined;
         let formattedEmail: string | undefined;
@@ -136,10 +136,6 @@ export class UserService {
 
         if (!existingUser) {
           throw new NotFoundException(`User with ID ${id} not found`);
-        }
-
-        if (email) {
-          formattedEmail = email.toLowerCase();
         }
 
         if (dob) {
@@ -159,8 +155,8 @@ export class UserService {
             lastName,
             phone,
             dob: utcDob,
-            email: formattedEmail,
             address,
+            displayPicture,
           },
         });
 

@@ -78,10 +78,6 @@ export class UserDto {
 }
 
 export class UpdateUserDto {
-    @ApiProperty({ description: 'User email address', example: 'user@example.com' })
-    @IsEmail()
-    @IsOptional()
-    email?: string;
   
     @ApiProperty({ description: 'first name of the user', example: 'Elon ' })
     @IsString()
@@ -101,8 +97,8 @@ export class UpdateUserDto {
 
     @ApiProperty({ description: 'home address', example: 'block 2 M close 5th avenue festac' })
     @IsString()
-    @IsNotEmpty()
-    address: string;
+    @IsOptional()
+    address?: string;
 
     @ApiProperty({ description: 'User date of birth', example: 'mm/dd/yyyy' })
     @IsOptional()
