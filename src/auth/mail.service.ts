@@ -18,13 +18,12 @@ export class MailService {
 
   async sendResetPasswordEmail(to: string, resetCode: string) {
     try {
-        console.log(process.env.EMAIL_PASS);
         if (!resetCode) {
             throw new NotFoundException("Invalid Request");
         }
         // const resetLink = `http://localhost:3000/reset-password?code=${resetCode}`;
         const mailOptions = {
-        from: '"WALLET" osiobeted@gmail.com',
+        from: '"ISCE AUTH" osiobeted@gmail.com',
         to,
         subject: 'Reset Your Password',
         text: `Here is your Reset Code: ${resetCode}`,
@@ -42,13 +41,12 @@ export class MailService {
 
   async sendAdminCodeEmail(to: string, code: string) {
     try {
-        console.log(process.env.EMAIL_PASS);
         if (!code) {
             throw new NotFoundException("Invalid Request");
         }
         // const resetLink = `http://localhost:3000/reset-password?code=${resetCode}`;
         const mailOptions = {
-        from: '"Haulage" osiobeted@gmail.com',
+        from: '"ISCE AUTH" osiobeted@gmail.com',
         to,
         subject: 'ADMIN REGISTRATION CODE',
         text: `Here is your Admin Registration Code: ${code}`,
@@ -65,13 +63,12 @@ export class MailService {
     
     async sendVerifyEmail(to: string, code: string) {
       try {
-          console.log(process.env.EMAIL_PASS);
           if (!code) {
               throw new NotFoundException("Invalid Request");
           }
           // const resetLink = `http://localhost:3000/reset-password?code=${resetCode}`;
           const mailOptions = {
-          from: '"Haulage" osiobeted@gmail.com',
+          from: '"ISCE AUTH" osiobeted@gmail.com',
           to,
           subject: 'VERIFY EMAIL CODE',
           text: `Here is your Verify Email Code: ${code}`,
