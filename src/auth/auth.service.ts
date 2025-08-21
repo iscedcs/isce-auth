@@ -57,13 +57,13 @@ export class AuthService {
         try {
             const formattedEmail = email.toLowerCase();
 
-            const existingUser = await this.databaseService.user.findUnique({
-                where: { email: formattedEmail },
-            });
+            // const existingUser = await this.databaseService.user.findUnique({
+            //     where: { email: formattedEmail },
+            // });
 
-            if (existingUser) {
-                throw new BadRequestException('User already exists with this email.');
-            }
+            // if (existingUser) {
+            //     throw new BadRequestException('User already exists with this email.');
+            // }
 
             const verificationRecord = await this.databaseService.emailVerify.findUnique({
                 where: { email: formattedEmail },
