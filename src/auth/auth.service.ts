@@ -74,7 +74,7 @@ export class AuthService {
             }
 
             const currentTime = new Date();
-            if (verificationRecord.expiresAt < currentTime) {
+            if (verificationRecord.expiresAt > currentTime) {
                 throw new BadRequestException('Verification code has expired.');
             }
 
