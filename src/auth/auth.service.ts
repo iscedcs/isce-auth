@@ -596,7 +596,8 @@ export class AuthService {
 
             const foundUser = await this.databaseService.user.findUnique({
                  where: { 
-                    email: formattedEmail
+                    email: formattedEmail,
+                    deletedAt: null
                  },
                  include: {
                     isce_permissions: true,
@@ -605,7 +606,7 @@ export class AuthService {
              });
 
             if (!foundUser) {
-                throw new BadRequestException('Email does not exists');
+                throw new BadRequestException('User does not exists or has been deleted');
             }
 
             if (foundUser.password === null) {
