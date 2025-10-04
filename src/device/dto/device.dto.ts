@@ -82,3 +82,51 @@ export class UpdateDeviceDto extends PartialType(CreateDeviceDto) {
   @IsEnum(DeviceType)
   deviceType?: DeviceType;
 }
+
+// Token-related DTOs
+export class RequestDeviceTokenDto {
+  @ApiProperty({
+    description: 'Email address to send the verification token to',
+    example: 'user@example.com',
+  })
+  @IsString()
+  email: string;
+
+  @ApiProperty({
+    description: 'ID of the user requesting the token',
+    example: 'abc123-user-uuid',
+  })
+  @IsString()
+  userId: string;
+
+  @ApiProperty({
+    description: 'Type of device being registered',
+    enum: DeviceType,
+    example: DeviceType.CARD,
+  })
+  @IsEnum(DeviceType)
+  deviceType: DeviceType;
+
+  @ApiProperty({
+    description: 'Unique product ID associated with the device',
+    example: 'prod789-nfc-tag',
+  })
+  @IsString()
+  productId: string;
+}
+
+export class VerifyDeviceTokenDto {
+  @ApiProperty({
+    description: '6-character alphanumeric verification token',
+    example: 'A1B2C3',
+  })
+  @IsString()
+  token: string;
+
+  @ApiProperty({
+    description: 'ID of the user verifying the token',
+    example: 'abc123-user-uuid',
+  })
+  @IsString()
+  userId: string;
+}

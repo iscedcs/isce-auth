@@ -95,6 +95,24 @@ model Device {
   assignedAt DateTime
   lastUsedAt DateTime?
   user       User      @relation(fields: [userId], references: [id])
+  token      Token?
+}
+
+model Token {
+  id         String    @id @default(uuid())
+  token      String    @unique
+  assignedTo String    // User email
+  used       Boolean   @default(false)
+  usedAt     DateTime?
+  deviceId   String?   @unique
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  device     Device?   @relation(fields: [deviceId], references: [id])
+  // Device information stored in token
+  deviceType String?   // Store the device type
+  productId  String?   // Store the product ID
+  userId     String?   // Store the user ID
 }
 
 model Address {

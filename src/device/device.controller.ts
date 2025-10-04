@@ -1,7 +1,8 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards, ValidationPipe } from '@nestjs/common';
 import { DeviceService } from './device.service';
+import { TokenService } from './token.service';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CreateDeviceDto, DeviceType, UpdateDeviceDto } from './dto/device.dto';
+import { CreateDeviceDto, DeviceType, UpdateDeviceDto, RequestDeviceTokenDto, VerifyDeviceTokenDto } from './dto/device.dto';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { UserType } from '@prisma/client';
@@ -9,7 +10,10 @@ import { UserType } from '@prisma/client';
 @ApiTags('Devices')
 @Controller('device')
 export class DeviceController {
-    constructor(private readonly deviceService: DeviceService) {}
+    constructor(
+        private readonly deviceService: DeviceService,
+        private readonly tokenService: TokenService,
+    ) {}
 
 
 @Post('create')
@@ -113,6 +117,70 @@ export class DeviceController {
     @Body() dto: UpdateDeviceDto,
   ) {
     return this.deviceService.updateDevice(id, dto);
+  }
+
+  // Token verification endpoints
+  @Post('request-token')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Request a device verification token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Verification token sent to email',
+    schema: {
+      example: {
+        success: true,
+        message: 'Verification token sent to your email',
+        data: {
+          tokenId: 'uuid-token-id',
+          expiresAt: '2025-01-15T12:30:00.000Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid request or device already exists' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiBody({ type: RequestDeviceTokenDto })
+  async requestDeviceToken(@Body(ValidationPipe) dto: RequestDeviceTokenDto) {
+    return await this.tokenService.requestDeviceToken(dto);
+  }
+
+  @Post('verify-token')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify device token and create device' })
+  @ApiResponse({
+    status: 200,
+    description: 'Device created successfully after token verification',
+    schema: {
+      example: {
+        success: true,
+        message: 'Device created successfully after token verification',
+        data: {
+          device: {
+            id: 'uuid-device-id',
+            userId: 'uuid-user-id',
+            type: '6214bdef7dbcb',
+            productId: 'prod789-nfc-tag',
+            isPrimary: true,
+            isActive: true,
+            assignedAt: '2025-01-15T12:00:00.000Z',
+            lastUsedAt: null,
+          },
+          tokenId: 'uuid-token-id',
+          verifiedAt: '2025-01-15T12:00:00.000Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid token, expired, or already used' })
+  @ApiResponse({ status: 401, description: 'Token not assigned to this user' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiBody({ type: VerifyDeviceTokenDto })
+  async verifyDeviceToken(@Body(ValidationPipe) dto: VerifyDeviceTokenDto) {
+    return await this.tokenService.verifyDeviceToken(dto);
   }
 
 }
